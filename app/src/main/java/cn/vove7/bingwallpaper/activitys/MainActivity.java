@@ -1,10 +1,20 @@
 package cn.vove7.bingwallpaper.activitys;
 
+import android.Manifest;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,6 +26,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +37,8 @@ import java.util.concurrent.TimeUnit;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
 import cn.vove7.bingwallpaper.handler.MessageHandler;
+import cn.vove7.bingwallpaper.services.DownloadService;
+import cn.vove7.bingwallpaper.services.DownloadService.DownloadBinder;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -45,7 +60,29 @@ public class MainActivity extends AppCompatActivity
    private View netErrorLayout;
    private View loadingLayout;
    private MessageHandler messageHandler;
+   private DownloadBinder downloadBinder;
    private boolean isAllLoad = false;//是否全部加载
+
+   //下载服务
+   private ServiceConnection connection = new ServiceConnection() {
+      @Override
+      public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+         downloadBinder = (DownloadBinder) iBinder;
+         LogHelper.logD("serCon->", "onServiceConnected*******");
+      }
+
+      @Override
+      public void onBindingDied(ComponentName name) {
+         LogHelper.logD("serCon->", "onDied*******");
+         downloadBinder = null;
+      }
+
+      @Override
+      public void onServiceDisconnected(ComponentName componentName) {
+         LogHelper.logD("serCon->", "onServiceDisconnected*******");
+         downloadBinder = null;
+      }
+   };
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +90,39 @@ public class MainActivity extends AppCompatActivity
       setContentView(R.layout.activity_main);
       initComponentView();
       initMainView();
+
+      Intent intent = new Intent(MainActivity.this, DownloadService.class);
+      startService(intent);
+      bindService(intent, connection, BIND_AUTO_CREATE);
+
+      requestPermission();
+   }
+
+   private long t = 0;
+
+   @Override
+   public void onBackPressed() {
+      long now = System.currentTimeMillis();
+      if (now - t < 1000) {
+         unbindService(connection);
+         Glide.get(this).clearMemory();
+         finish();
+         onDestroy();
+      } else {
+         t = now;
+         Snackbar.make(recyclerView, R.string.back_again_exit, Snackbar.LENGTH_SHORT).show();
+      }
+   }
+
+
+   private static final int REQUEST_CODE_WRITE_EXTERNAL = 1;
+
+   private void requestPermission() {
+      if (ContextCompat.checkSelfPermission(MainActivity.this,
+              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+         ActivityCompat.requestPermissions(MainActivity.this,
+                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL);
+      }
    }
 
    private void initMainView() {//初始化主界面
@@ -77,6 +147,7 @@ public class MainActivity extends AppCompatActivity
    public RecyclerView getRecyclerView() {
       return recyclerView;
    }
+
 
    public RecViewAdapter getRecyclerAdapter() {
       return recyclerAdapter;
@@ -121,11 +192,11 @@ public class MainActivity extends AppCompatActivity
          @Override
          public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
-            LogHelper.logD("dx:dy->", dx + ":" + dy);
-            LogHelper.logD("isBottom->", String.valueOf(isSlideToBottom()));
-            LogHelper.logD("isAllLoad>", String.valueOf(isAllLoad));
+//            LogHelper.logD("dx:dy->", dx + ":" + dy);
+//            LogHelper.logD("isBottom->", String.valueOf(isSlideToBottom()));
+//            LogHelper.logD("isAllLoad>", String.valueOf(isAllLoad));
             if (!isAllLoad && isSlideToBottom() && !onRefreshing) {//上拉加载,
-               onRefreshing=true;
+               onRefreshing = true;
                recyclerAdapter.setFooter(RecViewAdapter.STATUS_LOADING);//显示footer
                new Handler().postDelayed(new Runnable() {
                   @Override
@@ -228,20 +299,22 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
-      // Inflate the menu; this adds items to the action bar if it is present.
       getMenuInflater().inflate(R.menu.main, menu);
       return true;
    }
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      // Handle action bar item clicks here. The action bar will
-      // automatically handle clicks on the Home/Up button, so long
-      // as you specify a parent activity in AndroidManifest.xml.
       int id = item.getItemId();
 
-      //noinspection SimplifiableIfStatement
-      if (id == R.id.action_settings) {
+      if (id == R.id.action_download_all) {
+         if (!downloadBinder.isDownloading()) {
+            Snackbar.make(recyclerView, getString(R.string.begin_download), Snackbar.LENGTH_SHORT).show();
+            downloadBinder.startDownload(bingImages, this);
+         } else {
+            Snackbar.make(recyclerView, getString(R.string.is_downloading), Snackbar.LENGTH_SHORT).show();
+         }
+
          return true;
       }
 
@@ -251,19 +324,44 @@ public class MainActivity extends AppCompatActivity
    @SuppressWarnings("StatementWithEmptyBody")
    @Override
    public boolean onNavigationItemSelected(MenuItem item) {
-      // Handle navigation view item clicks here.
       int id = item.getItemId();
 
-      if (id == R.id.nav_gallery) {
-
-      } else if (id == R.id.nav_share) {
-
-      } else if (id == R.id.nav_donate) {
-
+      switch (id) {
+         case R.id.nav_clear: {
+            clearCache();
+         }
+         break;
+         case R.id.nav_donate: {
+         }
+         break;
       }
 
       DrawerLayout drawer = findViewById(R.id.drawer_layout);
       drawer.closeDrawer(GravityCompat.START);
       return true;
+   }
+
+   private void clearCache() {
+      new AsyncTask() {
+         @Override
+         protected Object doInBackground(Object[] objects) {
+            Glide.get(MainActivity.this).clearDiskCache();
+            return null;
+         }
+      }.execute();
+      Snackbar.make(recyclerView, "已清空", Snackbar.LENGTH_SHORT).show();
+   }
+
+   @Override
+   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      switch (requestCode) {
+         case REQUEST_CODE_WRITE_EXTERNAL: {
+            if ((grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED)) {
+               Toast.makeText(this, R.string.grant_write_permission, Toast.LENGTH_SHORT).show();
+               finish();//
+            }
+         }
+      }
+
    }
 }

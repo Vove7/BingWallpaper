@@ -12,11 +12,11 @@ public class LogHelper {
 
    public static void logD(String tag, String msg) {
       if (output)
-         Log.d(tag == null ? "" : tag, msg);
+         Log.d(("---------------------->") + (tag == null ? "" : tag), msg);
    }
 
    public static void logE(String tag, String msg) {
       if (output)
-         Log.e(tag == null ? "" : tag, msg);
+         Log.e(("---------------------->") + (tag == null ? "" : tag), msg);
    }
 }

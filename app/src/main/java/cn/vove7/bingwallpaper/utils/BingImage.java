@@ -3,7 +3,6 @@ package cn.vove7.bingwallpaper.utils;
 
 /**
  * Created by Vove on 2017/11/7.
- *
  */
 
 public class BingImage {
@@ -28,7 +27,10 @@ public class BingImage {
    }
 
    public String getCopyRight() {
-      return copyRight;
+      String[] strs = copyRight.split("©");
+      if (strs.length == 2)
+         return strs[0].replace('(', ' ') + "\n(©" + strs[1];
+      else return copyRight;
    }
 
    public void setCopyRight(String copyRight) {

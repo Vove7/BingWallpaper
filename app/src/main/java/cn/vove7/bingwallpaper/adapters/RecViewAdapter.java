@@ -29,6 +29,7 @@ import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_LOAD_MORE;
 
 /**
  * Created by Vove on 2017/1/23.
+ * RecViewAdapter
  */
 
 public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHolder> {
@@ -95,7 +96,8 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       switch (viewType) {
          case TYPE_ITEM: {
-            final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_layout, parent, false);
+            final View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cardview_layout, parent, false);
             final ViewHolder holder = new ViewHolder(view);
             //
             holder.itemView.setOnClickListener(new View.OnClickListener() {

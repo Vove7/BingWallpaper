@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">bingwallpaper</string>
+    <string name="app_name">Bing美图</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -17,4 +17,15 @@
     <string name="donate">捐赠</string>
     <string name="share_app">分享此软件</string>
     <string name="my_email">1132412166@qq.com</string>
+    <string name="surplus_task_text">还剩%1$d个壁纸,失败%2$d个</string>
+    <string name="begin_download">开始下载</string>
+    <string name="downloading">正在下载</string>
+    <string name="download_finish">下载完成</string>
+    <string name="download_detail">已下载%1$d张壁纸,失败%2$d个</string>
+    <string name="download_failed">下载失败</string>
+    <string name="is_downloading">正在下载中..</string>
+    <string name="grant_write_permission">请授予读写存储权限</string>
+    <string name="cannot_create_dir">无法创建目录</string>
+    <string name="clear_cache">清空缓存</string>
+    <string name="back_again_exit">再按一次退出</string>
 </resources>
