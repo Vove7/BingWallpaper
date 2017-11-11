@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity
          unbindService(connection);
          Glide.get(this).clearMemory();
          finish();
-         onDestroy();
       } else {
          t = now;
          Snackbar.make(recyclerView, R.string.back_again_exit, Snackbar.LENGTH_SHORT).show();
@@ -307,15 +306,16 @@ public class MainActivity extends AppCompatActivity
    public boolean onOptionsItemSelected(MenuItem item) {
       int id = item.getItemId();
 
-      if (id == R.id.action_download_all) {
+      if (id == R.id.menu_download_all) {
          if (!downloadBinder.isDownloading()) {
             Snackbar.make(recyclerView, getString(R.string.begin_download), Snackbar.LENGTH_SHORT).show();
             downloadBinder.startDownload(bingImages, this);
          } else {
             Snackbar.make(recyclerView, getString(R.string.is_downloading), Snackbar.LENGTH_SHORT).show();
          }
-
          return true;
+      } else if (id == R.id.menu_share) {
+         //
       }
 
       return super.onOptionsItemSelected(item);
