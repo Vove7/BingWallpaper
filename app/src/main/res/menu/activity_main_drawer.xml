@@ -3,10 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <item
-        android:id="@+id/nav_gallery"
-        android:icon="@drawable/ic_menu_gallery"
-        android:title="@string/gallery" />
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/gallery" />
+    </group>
 
 
     <item android:title="@string/other">
@@ -18,7 +20,7 @@
             <item
                 android:id="@+id/nav_clear"
                 android:title="@string/clear_cache"
-                android:icon="@drawable/broom_24px" />
+                android:icon="@drawable/ic_clear_all_black_24dp" />
 
         </menu>
     </item>

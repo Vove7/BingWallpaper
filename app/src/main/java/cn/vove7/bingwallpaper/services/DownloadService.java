@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 
 import cn.vove7.bingwallpaper.R;
-import cn.vove7.bingwallpaper.activitys.MainActivity;
 import cn.vove7.bingwallpaper.tasks.DownloadTask;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.LogHelper;
@@ -27,7 +26,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
    private ArrayList<BingImage> bingImages;
    private int surplusTaskNum;//剩余任务
    private int totalTaskNum;//总任务
-   private int failedNum;
+   private int failedNum;//失败数
 
    private DownloadBinder mBinder = new DownloadBinder();
 
@@ -40,7 +39,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
          return (downloadTaskArray != null && downloadTaskArray.size() != 0);
       }
 
-      public void startDownload(ArrayList<BingImage> urlArray, MainActivity activity) {
+      public void startDownload(ArrayList<BingImage> urlArray) {
          LogHelper.logD(null, "开始下载");
          if (downloadTaskArray == null) {//
             failedNum = 0;
@@ -128,7 +127,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
 
       if (surplusTaskNum > 0) {
          stopForeground(false);
-         builder.setContentText(String.format(getString(R.string.surplus_task_text), surplusTaskNum, failedNum));
+         builder.setContentText(String.format(getString(R.string.surplus_task_text), surplusTaskNum));
          int process = (int) ((1 - ((float) surplusTaskNum / totalTaskNum)) * 100);
          builder.setProgress(100, process, false);
       } else {

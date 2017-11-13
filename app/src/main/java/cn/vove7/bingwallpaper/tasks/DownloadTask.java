@@ -33,7 +33,6 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
 
    private boolean isPause = false;
    private boolean isCanceled = false;
-   private int lastProgress;
    @SuppressLint("StaticFieldLeak")
    private static DownloadService service;
 

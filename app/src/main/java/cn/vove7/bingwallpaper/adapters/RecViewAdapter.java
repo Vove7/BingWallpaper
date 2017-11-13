@@ -2,6 +2,7 @@ package cn.vove7.bingwallpaper.adapters;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +21,9 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
-import cn.vove7.bingwallpaper.activitys.MainActivity;
+import cn.vove7.bingwallpaper.activities.MainActivity;
 import cn.vove7.bingwallpaper.R;
+import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.utils.BingImage;
 
 import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_LOAD_MORE;
@@ -105,6 +107,12 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
                public void onClick(final View v) {
                   int pos = holder.getAdapterPosition();
                   Snackbar.make(view, bingImages.get(pos).getCopyRight(), Snackbar.LENGTH_SHORT).show();
+                  Intent viewIntent = new Intent(mainActivity, ViewImageActivity.class);
+                  viewIntent.putExtra("images", getImageUrlArray());
+                  viewIntent.putExtra("from", ViewPageAdapter.IMAGE_FROM_INTERNET);
+                  viewIntent.putExtra("startdates", getStartdateArray());
+                  viewIntent.putExtra("pos", pos);
+                  mainActivity.startActivity(viewIntent);
                }
             });
             return holder;
@@ -117,6 +125,25 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
             return null;
       }
    }
+
+   private String[] getImageUrlArray() {
+      String[] array = new String[bingImages.size()];
+      int index = 0;
+      for (BingImage image : bingImages) {
+         array[index++] = image.getUrlBase();
+      }
+      return array;
+   }
+
+   private String[] getStartdateArray() {
+      String[] array = new String[bingImages.size()];
+      int index = 0;
+      for (BingImage image : bingImages) {
+         array[index++] = image.getStartDate();
+      }
+      return array;
+   }
+
 
    public void setFooter(int status) {
       if (footerView == null)
@@ -134,7 +161,8 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
             llLoadedAll.setVisibility(View.GONE);
             llLoadError.setVisibility(View.VISIBLE);
             llLoading.setVisibility(View.GONE);
-         }break;
+         }
+         break;
          case STATUS_NET_ERROR: {
             errorTextOfFooter.setText(R.string.no_net_tapme);
             llLoadedAll.setVisibility(View.GONE);

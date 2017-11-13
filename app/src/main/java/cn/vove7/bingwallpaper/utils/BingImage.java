@@ -10,6 +10,14 @@ public class BingImage {
    private String urlBase;
    private String copyRight;
 
+   public BingImage(String startDate, String urlBase) {
+      this.startDate = startDate;
+      this.urlBase = urlBase;
+   }
+
+   public BingImage() {
+   }
+
    public String getStartDate() {
       return startDate;
    }

@@ -1,10 +1,14 @@
-package cn.vove7.bingwallpaper.activitys;
+package cn.vove7.bingwallpaper.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +44,7 @@ import cn.vove7.bingwallpaper.handler.MessageHandler;
 import cn.vove7.bingwallpaper.services.DownloadService;
 import cn.vove7.bingwallpaper.services.DownloadService.DownloadBinder;
 import cn.vove7.bingwallpaper.utils.BingImage;
+import cn.vove7.bingwallpaper.utils.DonateHelper;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -256,7 +261,6 @@ public class MainActivity extends AppCompatActivity
       });
    }
 
-
    public void stopRefreshing() {
       if (swipeRefreshLayout.isRefreshing())
          swipeRefreshLayout.setRefreshing(false);
@@ -299,6 +303,14 @@ public class MainActivity extends AppCompatActivity
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       getMenuInflater().inflate(R.menu.main, menu);
+      findViewById(R.id.email_me).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Uri uri = Uri.parse("mailto: 1132412166@qq.com");
+            Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+            startActivity(intent);
+         }
+      });
       return true;
    }
 
@@ -309,13 +321,17 @@ public class MainActivity extends AppCompatActivity
       if (id == R.id.menu_download_all) {
          if (!downloadBinder.isDownloading()) {
             Snackbar.make(recyclerView, getString(R.string.begin_download), Snackbar.LENGTH_SHORT).show();
-            downloadBinder.startDownload(bingImages, this);
+            downloadBinder.startDownload(bingImages);
          } else {
             Snackbar.make(recyclerView, getString(R.string.is_downloading), Snackbar.LENGTH_SHORT).show();
          }
          return true;
       } else if (id == R.id.menu_share) {
-         //
+         Intent intent = new Intent(Intent.ACTION_SEND);
+         intent.setType("text/plain");
+         intent.putExtra(Intent.EXTRA_TEXT, "https://www.coolapk.com/apk/cn.vove7.bingwallpaper");
+         startActivity(Intent.createChooser(intent, getString(R.string.share_to)));
+
       }
 
       return super.onOptionsItemSelected(item);
@@ -332,6 +348,11 @@ public class MainActivity extends AppCompatActivity
          }
          break;
          case R.id.nav_donate: {
+            new DonateHelper(this).donateWithAlipay();
+         }
+         break;
+         case R.id.nav_gallery: {
+            Snackbar.make(recyclerView, "敬请期待", Snackbar.LENGTH_SHORT).show();
          }
          break;
       }
@@ -341,15 +362,27 @@ public class MainActivity extends AppCompatActivity
       return true;
    }
 
+   @SuppressLint("StaticFieldLeak")
+   private AsyncTask clearTask = new AsyncTask() {
+      @Override
+      protected Object doInBackground(Object[] objects) {
+         Glide.get(MainActivity.this).clearDiskCache();
+         return null;
+      }
+   };
+
    private void clearCache() {
-      new AsyncTask() {
+      AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+      dialog.setTitle(R.string.confirm_clear_cache);
+      dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          @Override
-         protected Object doInBackground(Object[] objects) {
-            Glide.get(MainActivity.this).clearDiskCache();
-            return null;
+         public void onClick(DialogInterface dialogInterface, int i) {
+            clearTask.execute();
+            Snackbar.make(recyclerView, R.string.clear_successful, Snackbar.LENGTH_SHORT).show();
          }
-      }.execute();
-      Snackbar.make(recyclerView, "已清空", Snackbar.LENGTH_SHORT).show();
+      });
+      dialog.setNegativeButton(R.string.cancel, null);
+      dialog.show();
    }
 
    @Override
@@ -365,3 +398,8 @@ public class MainActivity extends AppCompatActivity
 
    }
 }
+
+/*
+   Uri uri = Uri.parse ("mailto: 1132412166@qq.com");
+   Intent intent = new Intent (Intent.ACTION_SENDTO, uri);
+   this.startActivity(intent);*/

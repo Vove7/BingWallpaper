@@ -12,7 +12,7 @@ import java.io.StringReader;
 
 import javax.xml.parsers.SAXParserFactory;
 
-import cn.vove7.bingwallpaper.activitys.MainActivity;
+import cn.vove7.bingwallpaper.activities.MainActivity;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
 import cn.vove7.bingwallpaper.utils.LogHelper;
