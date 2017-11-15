@@ -1,6 +1,6 @@
 
 打开图片
-
+'''
 {
     File file=new File();
     LogHelper.logD(null,file.getPath());
@@ -17,3 +17,4 @@
     intent.setDataAndType(uri, "image/*");
     startActivity(intent);
 }
+'''

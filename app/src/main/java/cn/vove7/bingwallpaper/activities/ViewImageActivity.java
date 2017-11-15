@@ -3,6 +3,7 @@ package cn.vove7.bingwallpaper.activities;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.view.ViewPager;
@@ -139,7 +140,12 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
          }
          break;
          case R.id.view_back: {//返回
-            onBackPressed();
+            new Handler().postDelayed(new Runnable() {
+               @Override
+               public void run() {
+                  onBackPressed();
+               }
+            }, 100);
          }
       }
    }

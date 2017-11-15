@@ -3,29 +3,23 @@ package cn.vove7.bingwallpaper.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,73 +28,41 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import cn.vove7.bingwallpaper.R;
-import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
-import cn.vove7.bingwallpaper.handler.MessageHandler;
-import cn.vove7.bingwallpaper.services.DownloadService;
-import cn.vove7.bingwallpaper.services.DownloadService.DownloadBinder;
-import cn.vove7.bingwallpaper.utils.BingImage;
+import cn.vove7.bingwallpaper.fragments.MainFragment;
+import cn.vove7.bingwallpaper.fragments.WallpaperFragment;
 import cn.vove7.bingwallpaper.utils.DonateHelper;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import cn.vove7.bingwallpaper.utils.ViewUtils;
 
-import cn.vove7.bingwallpaper.utils.LogHelper;
-import okhttp3.ResponseBody;
+import static cn.vove7.bingwallpaper.utils.ViewUtils.createFragment;
 
-import static cn.vove7.bingwallpaper.handler.MessageHandler.*;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-   private ArrayList<BingImage> bingImages = new ArrayList<>();
-   private SwipeRefreshLayout swipeRefreshLayout;
-   private RecViewAdapter recyclerAdapter;
-   private RecyclerView recyclerView;
-   private View netErrorLayout;
-   private View loadingLayout;
-   private MessageHandler messageHandler;
-   private DownloadBinder downloadBinder;
-   private boolean isAllLoad = false;//是否全部加载
 
-   //下载服务
-   private ServiceConnection connection = new ServiceConnection() {
-      @Override
-      public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-         downloadBinder = (DownloadBinder) iBinder;
-         LogHelper.logD("serCon->", "onServiceConnected*******");
-      }
+   private FragmentManager mFragmentManager;
+   private NavigationView navigationView;
+   private Fragment mCurrentFragment;
+   private MenuItem mPreMenuItem;
 
-      @Override
-      public void onBindingDied(ComponentName name) {
-         LogHelper.logD("serCon->", "onDied*******");
-         downloadBinder = null;
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName componentName) {
-         LogHelper.logD("serCon->", "onServiceDisconnected*******");
-         downloadBinder = null;
-      }
-   };
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
       initComponentView();
-      initMainView();
-
-      Intent intent = new Intent(MainActivity.this, DownloadService.class);
-      startService(intent);
-      bindService(intent, connection, BIND_AUTO_CREATE);
-
+      initDefaultFragment();
       requestPermission();
+   }
+
+   private void initDefaultFragment() {
+
+      mCurrentFragment = ViewUtils.createFragment(MainFragment.class);
+
+      mFragmentManager.beginTransaction().add(R.id.fragment_layout, mCurrentFragment).commit();
+      mPreMenuItem = navigationView.getMenu().getItem(0);
+      mPreMenuItem.setChecked(true);
    }
 
    private long t = 0;
@@ -109,12 +71,10 @@ public class MainActivity extends AppCompatActivity
    public void onBackPressed() {
       long now = System.currentTimeMillis();
       if (now - t < 1000) {
-         unbindService(connection);
-         Glide.get(this).clearMemory();
          finish();
       } else {
          t = now;
-         Snackbar.make(recyclerView, R.string.back_again_exit, Snackbar.LENGTH_SHORT).show();
+         Snackbar.make(navigationView, R.string.back_again_exit, Snackbar.LENGTH_SHORT).show();
       }
    }
 
@@ -129,180 +89,8 @@ public class MainActivity extends AppCompatActivity
       }
    }
 
-   private void initMainView() {//初始化主界面
-      getBingImages(ACTION_REFRESH_GET);
-   }
-
-   public void setAllLoad(boolean allLoad) {
-      isAllLoad = allLoad;
-   }
-
-   public boolean haveImages() {
-      return !(bingImages == null || bingImages.size() == 0);
-   }
-
-   public void clearImages() {
-      if (bingImages != null) {
-         bingImages.clear();
-         isAllLoad = false;
-      }
-   }
-
-   public RecyclerView getRecyclerView() {
-      return recyclerView;
-   }
-
-
-   public RecViewAdapter getRecyclerAdapter() {
-      return recyclerAdapter;
-   }
-
-   private void initComponentView() {
-      messageHandler = new MessageHandler(this);
-      Toolbar toolbar = findViewById(R.id.toolbar);
-      setSupportActionBar(toolbar);
-      DrawerLayout drawer = findViewById(R.id.drawer_layout);
-      ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-              this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-      drawer.addDrawerListener(toggle);
-      toggle.syncState();
-      ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
-
-      //下拉刷新控件
-      swipeRefreshLayout = findViewById(R.id.swipe_refresh);
-      swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-         @Override
-         public void onRefresh() {//下拉刷新
-            if (haveImages()) {//有图
-               getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);
-            } else {
-               getBingImages(ACTION_REFRESH_GET);
-            }
-//            refreshImage();
-         }
-      });
-      //netErrorLayout
-      netErrorLayout = findViewById(R.id.net_error_layout);
-      //loadingLayout
-      loadingLayout = findViewById(R.id.loading_layout);
-
-      //recycleView
-      recyclerView = findViewById(R.id.recycle_view);
-      LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-      recyclerView.setLayoutManager(layoutManager);
-      recyclerAdapter = new RecViewAdapter(this, bingImages);
-      recyclerView.setAdapter(recyclerAdapter);
-      recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {//上拉加载
-         @Override
-         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-//            LogHelper.logD("dx:dy->", dx + ":" + dy);
-//            LogHelper.logD("isBottom->", String.valueOf(isSlideToBottom()));
-//            LogHelper.logD("isAllLoad>", String.valueOf(isAllLoad));
-            if (!isAllLoad && isSlideToBottom() && !onRefreshing) {//上拉加载,
-               onRefreshing = true;
-               recyclerAdapter.setFooter(RecViewAdapter.STATUS_LOADING);//显示footer
-               new Handler().postDelayed(new Runnable() {
-                  @Override
-                  public void run() {
-                     getBingImages(ACTION_LOAD_MORE);
-                  }
-               }, 1000);//延时
-            }
-         }
-      });
-   }
-
-   private boolean onRefreshing = false;//上拉正在刷新标志
-
-   public void setOnRefreshing(boolean onRefreshing) {
-      this.onRefreshing = onRefreshing;
-   }
-
-   protected boolean isSlideToBottom() {
-      return recyclerView != null &&
-              (recyclerView.computeVerticalScrollExtent() +
-                      recyclerView.computeVerticalScrollOffset() >= recyclerView.computeVerticalScrollRange());
-
-   }
-
-   public void getBingImages(final int getAction) {
-      int pageIndex =
-              getAction == ACTION_LOAD_MORE ? 1 : 0;
-      OkHttpClient client = new OkHttpClient.Builder().readTimeout(5, TimeUnit.SECONDS).build();
-      Request request = new Request.Builder().url(getXmlUrl(pageIndex))
-              .get().build();
-      Call call = client.newCall(request);
-      call.enqueue(new Callback() {
-         private Message message = new Message();
-
-         @Override
-         public void onFailure(@NonNull Call call, @NonNull IOException e) {//响应失败更新UI
-            message.arg1 = NET_ERROR;//失败标志
-            message.arg2 = getAction;
-            messageHandler.sendMessage(message);
-         }
-
-         @Override
-         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {//响应成功更新UI
-            ResponseBody body = response.body();
-            if (body == null) {
-               message.arg1 = NET_NO_BODY;//无body
-            } else {
-               Bundle bundle = new Bundle();
-               message.arg1 = NET_NORMAL;//成功标志
-               String bodyStr = body.string();
-               bundle.putString("xmlData", bodyStr);
-               message.setData(bundle);
-            }
-            message.arg2 = getAction;
-            messageHandler.sendMessage(message);
-         }
-      });
-   }
-
-   public void stopRefreshing() {
-      if (swipeRefreshLayout.isRefreshing())
-         swipeRefreshLayout.setRefreshing(false);
-   }
-
-   public void notifyRefreshRecView() {
-      recyclerAdapter.notifyDataSetChanged();//主线程
-      stopRefreshing();
-   }
-
-   public void showNetErrView() {
-      loadingLayout.setVisibility(View.GONE);
-      recyclerView.setVisibility(View.GONE);
-      netErrorLayout.setVisibility(View.VISIBLE);
-      if (swipeRefreshLayout.isRefreshing())
-         swipeRefreshLayout.setRefreshing(false);
-   }
-
-   public void showRecView() {
-      loadingLayout.setVisibility(View.GONE);
-      recyclerView.setVisibility(View.VISIBLE);
-      netErrorLayout.setVisibility(View.GONE);
-      if (swipeRefreshLayout.isRefreshing())
-         swipeRefreshLayout.setRefreshing(false);
-   }
-
-   public void addBingImages(ArrayList<BingImage> images) {
-      if (bingImages == null) {
-         bingImages = images;
-      } else bingImages.addAll(images);
-   }
-
-   private static final int[][] index = {{0, 7}, {8, 8}};
-
-   private String getXmlUrl(int pageIndex) {
-      return "http://www.bing.com/HpImageArchive.aspx?format=xml&idx=" +
-              index[pageIndex][0] + "&n=" + index[pageIndex][1] + "&mkt=zh-CN";
-   }
-
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
-      getMenuInflater().inflate(R.menu.main, menu);
       findViewById(R.id.email_me).setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
@@ -311,31 +99,35 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
          }
       });
-      return true;
+      return super.onCreateOptionsMenu(menu);
    }
 
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-      int id = item.getItemId();
+   private void initComponentView() {
+      Toolbar toolbar = findViewById(R.id.toolbar);
+      setSupportActionBar(toolbar);
+      DrawerLayout drawer = findViewById(R.id.main_layout);
+      ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+              this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+      drawer.addDrawerListener(toggle);
+      toggle.syncState();
+      navigationView = findViewById(R.id.nav_view);
+      navigationView.setNavigationItemSelectedListener(this);
+      mFragmentManager = getSupportFragmentManager();
+   }
 
-      if (id == R.id.menu_download_all) {
-         if (!downloadBinder.isDownloading()) {
-            Snackbar.make(recyclerView, getString(R.string.begin_download), Snackbar.LENGTH_SHORT).show();
-            downloadBinder.startDownload(bingImages);
-         } else {
-            Snackbar.make(recyclerView, getString(R.string.is_downloading), Snackbar.LENGTH_SHORT).show();
-         }
-         return true;
-      } else if (id == R.id.menu_share) {
-         Intent intent = new Intent(Intent.ACTION_SEND);
-         intent.setType("text/plain");
-         intent.putExtra(Intent.EXTRA_TEXT, "https://www.coolapk.com/apk/cn.vove7.bingwallpaper");
-         startActivity(Intent.createChooser(intent, getString(R.string.share_to)));
 
+   //切换Fragment
+   private void switchFragment(Class<?> clazz) {
+      Fragment to = createFragment(clazz);
+      if (to.isAdded()) {
+         mFragmentManager.beginTransaction().hide(mCurrentFragment).show(to).commitAllowingStateLoss();
+      } else {
+         mFragmentManager.beginTransaction().hide(mCurrentFragment).add(R.id.fragment_layout, to).commitAllowingStateLoss();
       }
-
-      return super.onOptionsItemSelected(item);
+      mCurrentFragment = to;
    }
+
+
 
    @SuppressWarnings("StatementWithEmptyBody")
    @Override
@@ -343,8 +135,17 @@ public class MainActivity extends AppCompatActivity
       int id = item.getItemId();
 
       switch (id) {
+         case R.id.nav_recent: {
+            switchFragment(MainFragment.class);
+         }
+         break;
          case R.id.nav_clear: {
             clearCache();
+         }
+         break;
+         case R.id.nav_theme: {
+            //
+            Snackbar.make(navigationView, "这块留着ฅ•̀∀•́ฅ", Snackbar.LENGTH_SHORT).show();
          }
          break;
          case R.id.nav_donate: {
@@ -352,12 +153,18 @@ public class MainActivity extends AppCompatActivity
          }
          break;
          case R.id.nav_gallery: {
-            Snackbar.make(recyclerView, "敬请期待", Snackbar.LENGTH_SHORT).show();
+            switchFragment(WallpaperFragment.class);
+         }
+         break;
+         case R.id.nav_about: {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setView(R.layout.layout_about);
+            dialog.show();
          }
          break;
       }
 
-      DrawerLayout drawer = findViewById(R.id.drawer_layout);
+      DrawerLayout drawer = findViewById(R.id.main_layout);
       drawer.closeDrawer(GravityCompat.START);
       return true;
    }
@@ -378,7 +185,7 @@ public class MainActivity extends AppCompatActivity
          @Override
          public void onClick(DialogInterface dialogInterface, int i) {
             clearTask.execute();
-            Snackbar.make(recyclerView, R.string.clear_successful, Snackbar.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, getString(R.string.clear_successful), Toast.LENGTH_SHORT).show();
          }
       });
       dialog.setNegativeButton(R.string.cancel, null);
@@ -398,8 +205,3 @@ public class MainActivity extends AppCompatActivity
 
    }
 }
-
-/*
-   Uri uri = Uri.parse ("mailto: 1132412166@qq.com");
-   Intent intent = new Intent (Intent.ACTION_SENDTO, uri);
-   this.startActivity(intent);*/

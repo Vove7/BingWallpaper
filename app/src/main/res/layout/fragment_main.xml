@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,20 +13,23 @@
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-        <include layout="@layout/net_error_layout"/>
-        <include layout="@layout/loading_layout"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycle_view"
-            android:visibility="invisible"
-            android:scrollbars="vertical"
-            android:scrollbarStyle="insideInset"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </android.support.v7.widget.RecyclerView></RelativeLayout>
+            android:layout_height="match_parent">
+
+            <include layout="@layout/net_error_layout" />
+
+            <include layout="@layout/loading_layout" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycle_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical"
+                android:visibility="invisible" />
+        </RelativeLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
 

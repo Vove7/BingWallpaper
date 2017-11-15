@@ -1,6 +1,7 @@
 package cn.vove7.bingwallpaper.adapters;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,11 @@ import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 
@@ -91,7 +96,22 @@ public class ViewPageAdapter extends PagerAdapter {
 
    }
 
+   private RequestListener listener = new RequestListener() {
+      @Override
+      public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+         progressBar.setVisibility(View.GONE);
+         return false;
+      }
+
+      @Override
+      public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+         progressBar.setVisibility(View.GONE);
+         return false;
+      }
+   };
+
    private void glideToView(ViewGroup container, ImageView v, File file, String url) {
+      progressBar.setVisibility(View.VISIBLE);
       RequestOptions requestOptions = new RequestOptions()
               .centerCrop()
               .override(1920, 1080)
@@ -100,10 +120,12 @@ public class ViewPageAdapter extends PagerAdapter {
       RequestBuilder builder;
       if (file == null) {
          builder = Glide.with(container)
-                 .load(url).apply(requestOptions);
+                 .load(url).apply(requestOptions)
+                 .listener(listener);
       } else {
          builder = Glide.with(container)
-                 .load(file).apply(requestOptions);
+                 .load(file).apply(requestOptions)
+                 .listener(listener);
 
       }
       builder.into(v);

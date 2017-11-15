@@ -5,6 +5,11 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_recent"
+            android:icon="@drawable/ic_menu_white_24dp"
+            android:title="@string/text_recent_image" />
+
+        <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/gallery" />
@@ -14,14 +19,21 @@
     <item android:title="@string/other">
         <menu>
             <item
+                android:id="@+id/nav_theme"
+                android:icon="@drawable/ic_palette_black_24dp"
+                android:title="@string/text_theme" />
+            <item
                 android:id="@+id/nav_donate"
-                android:icon="@drawable/ic_menu_send"
+                android:icon="@drawable/ic_favorite_black_24dp"
                 android:title="@string/donate" />
             <item
                 android:id="@+id/nav_clear"
                 android:title="@string/clear_cache"
                 android:icon="@drawable/ic_clear_all_black_24dp" />
-
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_info_outline_black_24dp"
+                android:title="@string/text_about" />
         </menu>
     </item>
 

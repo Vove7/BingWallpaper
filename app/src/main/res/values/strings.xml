@@ -45,4 +45,13 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="file_aleady_exist">此图片已下载</string>
     <string name="author">Vove</string>
+    <string name="text_about">关于</string>
+    <string name="text_download">下载</string>
+    <string name="text_back">返回</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_recent_image">最近</string>
+    <string name="text_theme">主题</string>
+    <string name="check_update">检查更新</string>
 </resources>

@@ -1,6 +1,5 @@
 package cn.vove7.bingwallpaper.handler;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
@@ -12,16 +11,15 @@ import java.io.StringReader;
 
 import javax.xml.parsers.SAXParserFactory;
 
-import cn.vove7.bingwallpaper.activities.MainActivity;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
+import cn.vove7.bingwallpaper.fragments.MainFragment;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.XmlContentHandler;
 
 
 public class MessageHandler extends Handler {
-   private Context context;
-   private MainActivity mainActivity;
+   private MainFragment mainFragment;
    public static final int ACTION_REFRESH_GET = 1;//初始刷新
    public static final int ACTION_REFRESH_GET_WITH_IMAGE = 2;//初始成功（已加载图片），下拉刷新
    public static final int ACTION_LOAD_MORE = 3;//加载更多，/OR网络错误
@@ -31,9 +29,8 @@ public class MessageHandler extends Handler {
    public static final int NET_ERROR = 10;//无网络
    public static final int NET_NO_BODY = 13;//无信息
 
-   public MessageHandler(Context context) {
-      this.context = context;
-      mainActivity = (MainActivity) context;
+   public MessageHandler(MainFragment fragment) {
+      mainFragment = fragment;
    }
 
    @Override
@@ -56,9 +53,9 @@ public class MessageHandler extends Handler {
       String xmlData = msg.getData().getString("xmlData");
       switch (msg.arg2) {
          case ACTION_REFRESH_GET_WITH_IMAGE: {
-            mainActivity.clearImages();//清空
+            mainFragment.clearImages();//清空
             if (parseXMLWithSax(xmlData)) {
-               mainActivity.notifyRefreshRecView();
+               mainFragment.notifyRefreshRecView();
             } else {//解析失败
                parseFailed(msg);
             }
@@ -66,20 +63,20 @@ public class MessageHandler extends Handler {
          break;
          case ACTION_LOAD_MORE: {
             if (parseXMLWithSax(xmlData)) {
-               mainActivity.setAllLoad(true);
-               mainActivity.getRecyclerAdapter()
+               mainFragment.setAllLoad(true);
+               mainFragment.getRecyclerAdapter()
                        .setFooter(RecViewAdapter.STATUS_ALL_OK);
             } else {
-               mainActivity.getRecyclerAdapter()
+               mainFragment.getRecyclerAdapter()
                        .setFooter(RecViewAdapter.STATUS_XML_ERROR);
             }
-            mainActivity.setOnRefreshing(false);
+            mainFragment.setOnRefreshing(false);
          }
          break;
          case ACTION_REFRESH_GET: {
             if (parseXMLWithSax(xmlData)) {
-               mainActivity.showRecView();
-               mainActivity.notifyRefreshRecView();
+               mainFragment.showRecView();
+               mainFragment.notifyRefreshRecView();
             } else {//解析失败
                parseFailed(msg);
             }
@@ -92,30 +89,30 @@ public class MessageHandler extends Handler {
    private void refreshUIWithFailure(Message message) {
       switch (message.arg2) {
          case ACTION_REFRESH_GET: {
-            mainActivity.showNetErrView();
+            mainFragment.showNetErrView();
          }
          break;
          case ACTION_REFRESH_GET_WITH_IMAGE: {
-            Snackbar.make(mainActivity.getRecyclerView()
+            Snackbar.make(mainFragment.getRecyclerView()
                     , R.string.no_net, Snackbar.LENGTH_SHORT).show();
-            mainActivity.stopRefreshing();
+            mainFragment.stopRefreshing();
 
          }
          break;
          case ACTION_LOAD_MORE: {
-            mainActivity.getRecyclerAdapter()
+            mainFragment.getRecyclerAdapter()
                     .setFooter(RecViewAdapter.STATUS_NET_ERROR);
          }
-         mainActivity.setOnRefreshing(false);
+         mainFragment.setOnRefreshing(false);
          break;
 
       }
    }
 
    private void refreshWithNoBody(Message message) {
-      Snackbar.make(mainActivity.getRecyclerView(),
+      Snackbar.make(mainFragment.getRecyclerView(),
               R.string.no_response_body, Snackbar.LENGTH_SHORT).show();
-      mainActivity.stopRefreshing();
+      mainFragment.stopRefreshing();
 
       switch (message.arg2) {
          case ACTION_REFRESH_GET:
@@ -124,9 +121,9 @@ public class MessageHandler extends Handler {
    }
 
    private void parseFailed(Message message) {
-      Snackbar.make(mainActivity.getRecyclerView(),
+      Snackbar.make(mainFragment.getRecyclerView(),
               R.string.parse_xml_error, Snackbar.LENGTH_SHORT).show();
-      mainActivity.stopRefreshing();
+      mainFragment.stopRefreshing();
    }
 
    private boolean parseXMLWithSax(String xmlData) {
@@ -139,7 +136,7 @@ public class MessageHandler extends Handler {
          reader.parse(new InputSource(new StringReader(xmlData)));
          LogHelper.logD("urlList->", xmlContentHandler.getUrlList().toString());
 
-         ((MainActivity) context).addBingImages(xmlContentHandler.getBingImages());
+         mainFragment.addBingImages(xmlContentHandler.getBingImages());
          return true;
       } catch (Exception e) {
          e.printStackTrace();

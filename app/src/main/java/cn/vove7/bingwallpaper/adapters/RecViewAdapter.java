@@ -3,7 +3,9 @@ package cn.vove7.bingwallpaper.adapters;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,13 +19,17 @@ import android.widget.TextView;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 
-import cn.vove7.bingwallpaper.activities.MainActivity;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.activities.ViewImageActivity;
+import cn.vove7.bingwallpaper.fragments.MainFragment;
 import cn.vove7.bingwallpaper.utils.BingImage;
 
 import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_LOAD_MORE;
@@ -36,7 +42,7 @@ import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_LOAD_MORE;
 
 public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHolder> {
    private ArrayList<BingImage> bingImages;
-   private MainActivity mainActivity;
+   private MainFragment mainFragment;
 
    private View footerView;
    private LinearLayout llLoading;  // 正在加载view
@@ -77,7 +83,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
                   new Handler().postDelayed(new Runnable() {
                      @Override
                      public void run() {
-                        mainActivity.getBingImages(ACTION_LOAD_MORE);
+                        mainFragment.getBingImages(ACTION_LOAD_MORE);
                      }
                   }, 300);
                }
@@ -89,8 +95,8 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
       }
    }
 
-   public RecViewAdapter(MainActivity activity, ArrayList<BingImage> images) {
-      mainActivity = activity;
+   public RecViewAdapter(MainFragment activity, ArrayList<BingImage> images) {
+      mainFragment = activity;
       bingImages = images;
    }
 
@@ -99,7 +105,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
       switch (viewType) {
          case TYPE_ITEM: {
             final View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.cardview_layout, parent, false);
+                    .inflate(R.layout.main_cardview_layout, parent, false);
             final ViewHolder holder = new ViewHolder(view);
             //
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -107,12 +113,12 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
                public void onClick(final View v) {
                   int pos = holder.getAdapterPosition();
                   Snackbar.make(view, bingImages.get(pos).getCopyRight(), Snackbar.LENGTH_SHORT).show();
-                  Intent viewIntent = new Intent(mainActivity, ViewImageActivity.class);
+                  Intent viewIntent = new Intent(mainFragment.getContext(), ViewImageActivity.class);
                   viewIntent.putExtra("images", getImageUrlArray());
                   viewIntent.putExtra("from", ViewPageAdapter.IMAGE_FROM_INTERNET);
                   viewIntent.putExtra("startdates", getStartdateArray());
                   viewIntent.putExtra("pos", pos);
-                  mainActivity.startActivity(viewIntent);
+                  mainFragment.startActivity(viewIntent);
                }
             });
             return holder;
@@ -187,8 +193,9 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
    }
 
    @Override
-   public void onBindViewHolder(ViewHolder holder, int position) {
+   public void onBindViewHolder(final ViewHolder holder, int position) {
       if (getItemViewType(position) == TYPE_ITEM) {
+         holder.progressBar.setVisibility(View.VISIBLE);
          BingImage image = bingImages.get(position);
          runEnterAnimation(holder.itemView, position);
 
@@ -200,9 +207,21 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
          Glide.with(holder.itemView)
                  .load(image.getUrlBase() + "_1366x768.jpg")
                  .apply(requestOptions)
+                 .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                       holder.progressBar.setVisibility(View.GONE);
+                       return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                       holder.progressBar.setVisibility(View.GONE);
+                       return false;
+                    }
+                 })
                  .into(holder.bingImage);
 
-         holder.progressBar.setVisibility(View.GONE);
          holder.copyRightText.setText(image.getCopyRight());
          holder.startDateText.setText(image.getStartDate());
       } else {

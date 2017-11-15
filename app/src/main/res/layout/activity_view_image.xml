@@ -21,22 +21,25 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="@color/transparent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@color/transparent">
 
             <ImageButton
                 android:id="@+id/view_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="20dp"
-                android:background="?android:attr/selectableItemBackground"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_arrow_back_white_24dp" />
+                android:layout_marginLeft="20dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/text_back"
+                android:src="@drawable/ic_arrow_back_white_24dp"
+                android:theme="@style/RippleWhite" />
         </LinearLayout>
 
         <LinearLayout
@@ -47,12 +50,14 @@
 
             <ImageButton
                 android:id="@+id/view_download"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?android:attr/selectableItemBackground"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="20dp"
-                android:src="@drawable/ic_file_download_white_24dp" />
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/text_download"
+                android:src="@drawable/ic_file_download_white_24dp"
+                android:theme="@style/RippleWhite" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
