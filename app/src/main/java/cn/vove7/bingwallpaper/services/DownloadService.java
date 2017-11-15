@@ -19,6 +19,7 @@ import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.tasks.DownloadTask;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.LogHelper;
+import cn.vove7.bingwallpaper.utils.MyApplication;
 
 
 public class DownloadService extends Service {//多任务下载，可管理任一任务
@@ -30,7 +31,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
 
    private DownloadBinder mBinder = new DownloadBinder();
 
-   public static final String directory = Environment.
+   public static final String IMAGE_DIRECTORY = Environment.
            getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/BingWallpapers/";
 
    public class DownloadBinder extends Binder {//与外部Activity通信
@@ -82,7 +83,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
 
                String filename = bingImages.get(index).getStartDate() + ".jpg";
 
-               File file = new File(directory + filename);
+               File file = new File(IMAGE_DIRECTORY + filename);
                if (file.exists()) {
                   file.delete();
                }
@@ -140,6 +141,8 @@ public class DownloadService extends Service {//多任务下载，可管理任�
          //清理
          downloadTaskArray.clear();
          downloadTaskArray = null;
+         Toast.makeText(MyApplication.getApplication().getMainActivity(), R.string.download_finish, Toast.LENGTH_SHORT)
+                 .show();
          LogHelper.logD("service->", "stop 下载完成");
 //         Snackbar.make(mainActivity.getRecyclerView(), R.string.download_finish, Snackbar.LENGTH_SHORT)
 //                 .show();

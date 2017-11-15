@@ -112,7 +112,6 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
                @Override
                public void onClick(final View v) {
                   int pos = holder.getAdapterPosition();
-                  Snackbar.make(view, bingImages.get(pos).getCopyRight(), Snackbar.LENGTH_SHORT).show();
                   Intent viewIntent = new Intent(mainFragment.getContext(), ViewImageActivity.class);
                   viewIntent.putExtra("images", getImageUrlArray());
                   viewIntent.putExtra("from", ViewPageAdapter.IMAGE_FROM_INTERNET);

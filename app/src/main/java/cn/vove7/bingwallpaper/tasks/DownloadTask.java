@@ -73,7 +73,7 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
 
    @Override
    protected Integer doInBackground(Object... params) {
-      String directory = DownloadService.directory;
+      String directory = DownloadService.IMAGE_DIRECTORY;
       File dir = new File(directory);
       if (!dir.exists()) {
          if (!dir.mkdir()) {

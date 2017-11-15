@@ -1,10 +1,12 @@
 package cn.vove7.bingwallpaper.activities;
 
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import cn.vove7.bingwallpaper.R;
@@ -19,8 +22,11 @@ import cn.vove7.bingwallpaper.adapters.ViewPageAdapter;
 import cn.vove7.bingwallpaper.services.DownloadService;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.LogHelper;
+import cn.vove7.bingwallpaper.utils.MyApplication;
+import cn.vove7.bingwallpaper.utils.Utils;
 
-import static cn.vove7.bingwallpaper.services.DownloadService.directory;
+import static cn.vove7.bingwallpaper.adapters.ViewPageAdapter.IMAGE_FROM_LOCAL;
+import static cn.vove7.bingwallpaper.services.DownloadService.*;
 import static cn.vove7.bingwallpaper.utils.Utils.isFileExist;
 
 public class ViewImageActivity extends AppCompatActivity implements View.OnClickListener {
@@ -32,6 +38,8 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    private ViewPager mViewPager;
    private int imageFrom;
    private ImageButton downloadBtn;
+   private ImageButton shareBtn;
+   private ImageButton deleteBtn;
 
    private DownloadService.DownloadBinder downloadBinder;
 
@@ -74,6 +82,11 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
 
       downloadBtn = findViewById(R.id.view_download);
       downloadBtn.setOnClickListener(this);
+      shareBtn = findViewById(R.id.view_share);
+      shareBtn.setOnClickListener(this);
+      deleteBtn = findViewById(R.id.view_delete);
+      deleteBtn.setOnClickListener(this);
+
       findViewById(R.id.view_back).setOnClickListener(this);
 
 
@@ -109,12 +122,19 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
 
    private void setDownloadBtn(int position) {
       LogHelper.logD(null, "position---->" + position);
-      String filename = directory + "/" + startdates[position] + ".jpg";
+      if (imageFrom == IMAGE_FROM_LOCAL) {
+         deleteBtn.setVisibility(View.VISIBLE);
+         downloadBtn.setVisibility(View.GONE);
+         return;
+      }
+      String filename = IMAGE_DIRECTORY + "/" + startdates[position] + ".jpg";
       if (isFileExist(filename)) {
          LogHelper.logD(null, "file exist");
          downloadBtn.setVisibility(View.GONE);
+         deleteBtn.setVisibility(View.VISIBLE);
       } else {
          downloadBtn.setVisibility(View.VISIBLE);
+         deleteBtn.setVisibility(View.GONE);
          LogHelper.logD(null, "file dont exist");
       }
    }
@@ -125,7 +145,7 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
          case R.id.view_download: {
             if (!downloadBinder.isDownloading()) {
                int pos = mViewPager.getCurrentItem();
-               if (!isFileExist(directory + "/" + startdates[pos] + ".jpg")) {
+               if (!isFileExist(IMAGE_DIRECTORY + "/" + startdates[pos] + ".jpg")) {
                   Toast.makeText(this, R.string.begin_download, Toast.LENGTH_SHORT).show();
                   BingImage bingImage = new BingImage(startdates[pos], images[pos]);
                   ArrayList<BingImage> arrayList = new ArrayList<>();
@@ -147,6 +167,35 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
                }
             }, 100);
          }
+         break;
+         case R.id.view_delete: {
+            final int pos = mViewPager.getCurrentItem();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.confirm_delete);
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialogInterface, int i) {
+                  String filename = IMAGE_DIRECTORY + "/" +
+                          startdates[pos] + (imageFrom == IMAGE_FROM_LOCAL ? "" : ".jpg");
+                  File file = new File(filename);
+                  if (file.exists()) {
+                     if (file.delete()) {
+                        Toast.makeText(ViewImageActivity.this, R.string.delete_successful, Toast.LENGTH_SHORT).show();
+                        if (imageFrom == IMAGE_FROM_LOCAL)
+                           MyApplication.getApplication().getGalleryFragment().refreshView();
+                        onBackPressed();//返回
+                     }
+                  }
+               }
+            });
+            builder.setNegativeButton(R.string.cancel, null);
+            builder.show();
+         }
+         break;
+         case R.id.view_share: {
+            Utils.shareImageTo(null);
+         }
+         break;
       }
    }
 

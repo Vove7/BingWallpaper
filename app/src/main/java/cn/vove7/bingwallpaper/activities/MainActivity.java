@@ -31,8 +31,9 @@ import com.bumptech.glide.Glide;
 
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
-import cn.vove7.bingwallpaper.fragments.WallpaperFragment;
+import cn.vove7.bingwallpaper.fragments.GalleryFragment;
 import cn.vove7.bingwallpaper.utils.DonateHelper;
+import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.ViewUtils;
 
 import static cn.vove7.bingwallpaper.utils.ViewUtils.createFragment;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
+      MyApplication.getApplication().setMainActivity(this);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
       initComponentView();
@@ -128,7 +130,6 @@ public class MainActivity extends AppCompatActivity
    }
 
 
-
    @SuppressWarnings("StatementWithEmptyBody")
    @Override
    public boolean onNavigationItemSelected(MenuItem item) {
@@ -153,7 +154,10 @@ public class MainActivity extends AppCompatActivity
          }
          break;
          case R.id.nav_gallery: {
-            switchFragment(WallpaperFragment.class);
+            switchFragment(GalleryFragment.class);
+            GalleryFragment fragment = MyApplication.getApplication().getGalleryFragment();
+            if (fragment != null)
+               fragment.refreshView();
          }
          break;
          case R.id.nav_about: {

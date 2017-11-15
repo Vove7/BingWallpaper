@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
@@ -22,7 +23,7 @@ import java.io.File;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 
-import static cn.vove7.bingwallpaper.services.DownloadService.directory;
+import static cn.vove7.bingwallpaper.services.DownloadService.IMAGE_DIRECTORY;
 import static cn.vove7.bingwallpaper.utils.Utils.isFileExist;
 
 /**
@@ -31,7 +32,7 @@ import static cn.vove7.bingwallpaper.utils.Utils.isFileExist;
 
 public class ViewPageAdapter extends PagerAdapter {
    private Context context;
-   private String[] images;
+   private String[] imagesUrl;
    private String[] startdates;
    private int imageFrom;
    ProgressBar progressBar;
@@ -39,16 +40,18 @@ public class ViewPageAdapter extends PagerAdapter {
    public static final int IMAGE_FROM_LOCAL = 0;
    public static final int IMAGE_FROM_INTERNET = 1;
 
-   public ViewPageAdapter(Context context, String[] images, String[] startdates, int imageFrom) {
+   public ViewPageAdapter(Context context, String[] imagesUrl, String[] startdates, int imageFrom) {
       this.context = context;
-      this.images = images;
+      this.imagesUrl = imagesUrl;
       this.imageFrom = imageFrom;
       this.startdates = startdates;
    }
 
    @Override
    public int getCount() {
-      return images.length;
+      if (imagesUrl != null)
+         return imagesUrl.length;
+      else return startdates.length;
    }
 
    @Override
@@ -71,12 +74,12 @@ public class ViewPageAdapter extends PagerAdapter {
       switch (imageFrom) {
          case IMAGE_FROM_LOCAL: {
             LogHelper.logD(null, "from local***");
-            File file = new File(directory + "/" + images[position]);
+            File file = new File(IMAGE_DIRECTORY + startdates[position]);//充当path
             glideToView(container, imageView, file, null);
          }
          break;
          case IMAGE_FROM_INTERNET: {
-            String filename = directory + "/" + startdates[position] + ".jpg";
+            String filename = IMAGE_DIRECTORY + "/" + startdates[position] + ".jpg";
             LogHelper.logD(null, "filename->" + filename);
             if (isFileExist(filename)) {
                LogHelper.logD(null, "internet from local***");
@@ -84,7 +87,7 @@ public class ViewPageAdapter extends PagerAdapter {
                glideToView(container, imageView, file, null);
             } else {
                LogHelper.logD(null, "from internet***");
-               glideToView(container, imageView, null, images[position] + "_1920x1080.jpg");
+               glideToView(container, imageView, null, imagesUrl[position] + "_1920x1080.jpg");
             }
          }
          break;
@@ -123,6 +126,8 @@ public class ViewPageAdapter extends PagerAdapter {
                  .load(url).apply(requestOptions)
                  .listener(listener);
       } else {
+         requestOptions.diskCacheStrategy(DiskCacheStrategy.NONE)
+                 .skipMemoryCache(true);
          builder = Glide.with(container)
                  .load(file).apply(requestOptions)
                  .listener(listener);
