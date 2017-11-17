@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/view_download_1080"
+        android:title="@string/ratio_1920x1080" />
+    <item
+        android:id="@+id/view_download_1200"
+        android:title="@string/ratio_1920x1200" />
+
+</menu>

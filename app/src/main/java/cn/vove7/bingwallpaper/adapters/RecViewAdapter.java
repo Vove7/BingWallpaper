@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,7 @@ import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
 import cn.vove7.bingwallpaper.utils.BingImage;
 
-import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_LOAD_MORE;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.ACTION_LOAD_MORE;
 
 
 /**
@@ -116,6 +115,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
                   viewIntent.putExtra("images", getImageUrlArray());
                   viewIntent.putExtra("from", ViewPageAdapter.IMAGE_FROM_INTERNET);
                   viewIntent.putExtra("startdates", getStartdateArray());
+                  viewIntent.putExtra("hshs", getHshArray());
                   viewIntent.putExtra("pos", pos);
                   mainFragment.startActivity(viewIntent);
                }
@@ -135,7 +135,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
       String[] array = new String[bingImages.size()];
       int index = 0;
       for (BingImage image : bingImages) {
-         array[index++] = image.getUrlBase();
+         array[index++] = image.getRawUrlBase();
       }
       return array;
    }
@@ -147,6 +147,16 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
          array[index++] = image.getStartDate();
       }
       return array;
+   }
+
+   private String[] getHshArray() {
+      String[] array = new String[bingImages.size()];
+      int index = 0;
+      for (BingImage image : bingImages) {
+         array[index++] = image.getHsh();
+      }
+      return array;
+
    }
 
 

@@ -1,18 +1,35 @@
 package cn.vove7.bingwallpaper.utils;
 
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Vove on 2017/11/7.
  */
 
 public class BingImage {
+   @SerializedName("startdate")
    private String startDate;
+   @SerializedName("urlbase")
    private String urlBase;
+   @SerializedName("copyright")
    private String copyRight;
+   @SerializedName("hsh")
+   private String hsh;
 
-   public BingImage(String startDate, String urlBase) {
+   @Override
+   public String toString() {
+      return startDate + "\n" + urlBase + "\n" + copyRight + "\n" + hsh + "\n";
+   }
+
+   public BingImage(String startDate, String urlBase, String hsh) {
       this.startDate = startDate;
       this.urlBase = urlBase;
+      this.hsh = hsh;
+   }
+
+   public BingImage(String startDate) {
+      this.startDate = startDate;
    }
 
    public BingImage() {
@@ -23,15 +40,26 @@ public class BingImage {
    }
 
    public String getUrlBase() {
-      return urlBase;
+      return "http://www.bing.com" + urlBase;
    }
 
+   public String getRawUrlBase() {
+      return urlBase;
+   }
    public void setStartDate(String startDate) {
       this.startDate = startDate;
    }
 
    public void setUrlBase(String urlBase) {
       this.urlBase = urlBase;
+   }
+
+   public String getHsh() {
+      return hsh;
+   }
+
+   public void setHsh(String hsh) {
+      this.hsh = hsh;
    }
 
    public String getCopyRight() {

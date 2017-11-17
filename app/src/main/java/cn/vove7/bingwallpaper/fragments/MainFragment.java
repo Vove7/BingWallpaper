@@ -33,7 +33,7 @@ import android.view.ViewGroup;
 import cn.vove7.bingwallpaper.services.DownloadService;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 
-import cn.vove7.bingwallpaper.handler.MessageHandler;
+import cn.vove7.bingwallpaper.handler.InternetMessageHandler;
 import cn.vove7.bingwallpaper.utils.Utils;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -48,12 +48,13 @@ import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
 import cn.vove7.bingwallpaper.utils.BingImage;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_LOAD_MORE;
-import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_REFRESH_GET;
-import static cn.vove7.bingwallpaper.handler.MessageHandler.ACTION_REFRESH_GET_WITH_IMAGE;
-import static cn.vove7.bingwallpaper.handler.MessageHandler.NET_ERROR;
-import static cn.vove7.bingwallpaper.handler.MessageHandler.NET_NORMAL;
-import static cn.vove7.bingwallpaper.handler.MessageHandler.NET_NO_BODY;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.ACTION_LOAD_MORE;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.ACTION_REFRESH_GET;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.ACTION_REFRESH_GET_WITH_IMAGE;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.NET_ERROR;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.NET_NORMAL;
+import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.NET_NO_BODY;
+import static cn.vove7.bingwallpaper.services.DownloadService.RESOLUTION_RATIO_1080;
 
 public class MainFragment extends Fragment {
    private View contentView;
@@ -61,17 +62,15 @@ public class MainFragment extends Fragment {
    private View netErrorLayout;
    private View loadingLayout;
    private ArrayList<BingImage> bingImages = new ArrayList<>();
-   private MessageHandler messageHandler;
+   private InternetMessageHandler internetMessageHandler;
 
    private RecViewAdapter recyclerAdapter;
    private RecyclerView recyclerView;
    private DownloadService.DownloadBinder downloadBinder;
 
-   public ArrayList<BingImage> getBingImages() {
-      return bingImages;
-   }
+   private int nowPage = 0;//当前页码
+   private static final int totalPage = 2;//总共页码
 
-   private boolean isAllLoad = false;//是否全部加载
 
    public MainFragment() {
    }
@@ -92,19 +91,20 @@ public class MainFragment extends Fragment {
       return contentView;
    }
 
-
-   public void setAllLoad(boolean allLoad) {
-      isAllLoad = allLoad;
-   }
-
    public boolean haveImages() {
       return !(bingImages == null || bingImages.size() == 0);
+   }
+
+   public void addNowPage() {
+      nowPage++;
+      LogHelper.logD(null, "nowPage=" + nowPage);
    }
 
    public void clearImages() {
       if (bingImages != null) {
          bingImages.clear();
-         isAllLoad = false;
+         nowPage = 0;
+         LogHelper.logD(null, "nowPage=0");
       }
    }
 
@@ -159,13 +159,14 @@ public class MainFragment extends Fragment {
       if (bingImages == null) {
          bingImages = images;
       } else bingImages.addAll(images);
+      recyclerAdapter.notifyDataSetChanged();
    }
 
    public void getBingImages(final int getAction) {
-      int pageIndex =
-              getAction == ACTION_LOAD_MORE ? 1 : 0;
+      int pageIndex = getAction == ACTION_LOAD_MORE ? nowPage : 0;
+
       OkHttpClient client = new OkHttpClient.Builder().readTimeout(5, TimeUnit.SECONDS).build();
-      Request request = new Request.Builder().url(getXmlUrl(pageIndex))
+      Request request = new Request.Builder().url(getJsonUrl(pageIndex))
               .get().build();
       Call call = client.newCall(request);
       call.enqueue(new Callback() {
@@ -175,7 +176,7 @@ public class MainFragment extends Fragment {
          public void onFailure(@NonNull Call call, @NonNull IOException e) {//响应失败更新UI
             message.arg1 = NET_ERROR;//失败标志
             message.arg2 = getAction;
-            messageHandler.sendMessage(message);
+            internetMessageHandler.sendMessage(message);
          }
 
          @Override
@@ -187,20 +188,27 @@ public class MainFragment extends Fragment {
                Bundle bundle = new Bundle();
                message.arg1 = NET_NORMAL;//成功标志
                String bodyStr = body.string();
-               bundle.putString("xmlData", bodyStr);
+               bundle.putString("jsonData", bodyStr);
                message.setData(bundle);
             }
             message.arg2 = getAction;
-            messageHandler.sendMessage(message);
+            internetMessageHandler.sendMessage(message);
          }
       });
    }
 
    private static final int[][] index = {{0, 7}, {8, 8}};
 
-   private String getXmlUrl(int pageIndex) {
-      return "http://www.bing.com/HpImageArchive.aspx?format=xml&idx=" +
+   private String getJsonUrl(int pageIndex) {
+      return "http://www.bing.com/HpImageArchive.aspx?format=js&idx=" +
               index[pageIndex][0] + "&n=" + index[pageIndex][1] + "&mkt=zh-CN";
+   }
+
+   @Override
+   public void onDestroyView() {
+      bingImages.clear();
+      LogHelper.logD(null, "main destory");
+      super.onDestroyView();
    }
 
    private void initMainView() {//初始化主界面
@@ -210,7 +218,7 @@ public class MainFragment extends Fragment {
    private void initComponent() {
       setHasOptionsMenu(true);//生效菜单
 
-      messageHandler = new MessageHandler(this);
+      internetMessageHandler = new InternetMessageHandler(this);
       //下拉刷新控件
       swipeRefreshLayout = (SwipeRefreshLayout) $(R.id.swipe_refresh);
       swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -218,8 +226,10 @@ public class MainFragment extends Fragment {
          public void onRefresh() {//下拉刷新
             if (haveImages()) {//有图
                getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);
+               LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);");
             } else {
                getBingImages(ACTION_REFRESH_GET);
+               LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET);");
             }
 //            refreshImage();
          }
@@ -242,7 +252,7 @@ public class MainFragment extends Fragment {
 //            LogHelper.logD("dx:dy->", dx + ":" + dy);
 //            LogHelper.logD("isBottom->", String.valueOf(isSlideToBottom()));
 //            LogHelper.logD("isAllLoad>", String.valueOf(isAllLoad));
-            if (!isAllLoad && isSlideToBottom() && !onRefreshing) {//上拉加载,
+            if (!isAllLoad() && isSlideToBottom() && !onRefreshing) {//上拉加载,
                onRefreshing = true;
                recyclerAdapter.setFooter(RecViewAdapter.STATUS_LOADING);//显示footer
                new Handler().postDelayed(new Runnable() {
@@ -250,7 +260,7 @@ public class MainFragment extends Fragment {
                   public void run() {
                      getBingImages(ACTION_LOAD_MORE);
                   }
-               }, 1000);//延时
+               }, 800);//延时
             }
          }
       });
@@ -260,9 +270,13 @@ public class MainFragment extends Fragment {
       getActivity().bindService(intent, connection, BIND_AUTO_CREATE);
    }
 
+   private boolean isAllLoad() {
+      return (nowPage >= totalPage);
+   }
+
    @Override
    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-      inflater.inflate(R.menu.download_menu, menu);
+      inflater.inflate(R.menu.main_more_menu, menu);
       super.onCreateOptionsMenu(menu, inflater);
    }
 
@@ -279,7 +293,7 @@ public class MainFragment extends Fragment {
       if (id == R.id.menu_download_all) {
          if (!downloadBinder.isDownloading()) {
             Snackbar.make(recyclerView, getString(R.string.begin_download), Snackbar.LENGTH_SHORT).show();
-            downloadBinder.startDownload(bingImages);
+            downloadBinder.startDownload(bingImages, false, RESOLUTION_RATIO_1080);
          } else {
             Snackbar.make(recyclerView, getString(R.string.is_downloading), Snackbar.LENGTH_SHORT).show();
          }

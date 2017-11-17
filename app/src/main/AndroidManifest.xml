@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <application
         android:name=".utils.MyApplication"
@@ -16,7 +17,8 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
    public void onBackPressed() {
       long now = System.currentTimeMillis();
       if (now - t < 1000) {
+
          finish();
       } else {
          t = now;
@@ -132,9 +133,8 @@ public class MainActivity extends AppCompatActivity
 
    @SuppressWarnings("StatementWithEmptyBody")
    @Override
-   public boolean onNavigationItemSelected(MenuItem item) {
+   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
       int id = item.getItemId();
-
       switch (id) {
          case R.id.nav_recent: {
             switchFragment(MainFragment.class);

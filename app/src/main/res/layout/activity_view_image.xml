@@ -40,7 +40,7 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="20dp"
+                    android:layout_margin="20dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/text_back"
                     android:src="@drawable/ic_arrow_back_white_24dp"
@@ -53,15 +53,24 @@
                 android:background="@color/transparent"
                 android:gravity="center">
 
+                <!--<ImageButton-->
+                <!--android:id="@+id/view_share"-->
+                <!--android:layout_width="50dp"-->
+                <!--android:layout_height="50dp"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:background="?android:attr/selectableItemBackgroundBorderless"-->
+                <!--android:contentDescription="@string/text_share"-->
+                <!--android:src="@drawable/ic_share_white_24dp"-->
+                <!--android:theme="@style/RippleWhite" />-->
                 <ImageButton
-                    android:id="@+id/view_share"
+                    android:id="@+id/view_more"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_gravity="center_vertical"
                     android:layout_margin="20dp"
+                    android:layout_gravity="center_vertical"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/text_share"
-                    android:src="@drawable/ic_share_white_24dp"
+                    android:contentDescription="@string/text_more"
+                    android:src="@drawable/ic_more_vert_white_24dp"
                     android:theme="@style/RippleWhite" />
             </LinearLayout>
         </LinearLayout>
@@ -78,7 +87,7 @@
                 android:layout_gravity="bottom"
                 android:layout_margin="20dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/text_share"
+                android:contentDescription="@string/text_download"
                 android:src="@drawable/ic_file_download_white_24dp"
                 android:theme="@style/RippleWhite" />
 

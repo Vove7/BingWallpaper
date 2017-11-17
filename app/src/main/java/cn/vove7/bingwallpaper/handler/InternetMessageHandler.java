@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -14,11 +17,12 @@ import javax.xml.parsers.SAXParserFactory;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
+import cn.vove7.bingwallpaper.utils.BingImages;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.XmlContentHandler;
 
 
-public class MessageHandler extends Handler {
+public class InternetMessageHandler extends Handler {
    private MainFragment mainFragment;
    public static final int ACTION_REFRESH_GET = 1;//初始刷新
    public static final int ACTION_REFRESH_GET_WITH_IMAGE = 2;//初始成功（已加载图片），下拉刷新
@@ -29,7 +33,7 @@ public class MessageHandler extends Handler {
    public static final int NET_ERROR = 10;//无网络
    public static final int NET_NO_BODY = 13;//无信息
 
-   public MessageHandler(MainFragment fragment) {
+   public InternetMessageHandler(MainFragment fragment) {
       mainFragment = fragment;
    }
 
@@ -50,11 +54,12 @@ public class MessageHandler extends Handler {
    }
 
    private void refreshUIWithSuccess(Message msg) {
-      String xmlData = msg.getData().getString("xmlData");
+      String jsonData = msg.getData().getString("jsonData");
       switch (msg.arg2) {
          case ACTION_REFRESH_GET_WITH_IMAGE: {
             mainFragment.clearImages();//清空
-            if (parseXMLWithSax(xmlData)) {
+            if (parseJson(jsonData)) {
+               mainFragment.addNowPage();
                mainFragment.notifyRefreshRecView();
             } else {//解析失败
                parseFailed(msg);
@@ -62,8 +67,8 @@ public class MessageHandler extends Handler {
          }
          break;
          case ACTION_LOAD_MORE: {
-            if (parseXMLWithSax(xmlData)) {
-               mainFragment.setAllLoad(true);
+            if (parseJson(jsonData)) {
+               mainFragment.addNowPage();
                mainFragment.getRecyclerAdapter()
                        .setFooter(RecViewAdapter.STATUS_ALL_OK);
             } else {
@@ -74,8 +79,9 @@ public class MessageHandler extends Handler {
          }
          break;
          case ACTION_REFRESH_GET: {
-            if (parseXMLWithSax(xmlData)) {
-               mainFragment.showRecView();
+            if (parseJson(jsonData)) {
+               mainFragment.addNowPage();
+               mainFragment.showRecView();//
                mainFragment.notifyRefreshRecView();
             } else {//解析失败
                parseFailed(msg);
@@ -124,6 +130,18 @@ public class MessageHandler extends Handler {
       Snackbar.make(mainFragment.getRecyclerView(),
               R.string.parse_xml_error, Snackbar.LENGTH_SHORT).show();
       mainFragment.stopRefreshing();
+   }
+
+   private boolean parseJson(String jsonData) {
+      Gson gson = new GsonBuilder().create();
+      BingImages images = gson.fromJson(jsonData, BingImages.class);
+
+      if (images != null) {
+//         LogHelper.logD(null,images.toString());
+         mainFragment.addBingImages(images.getImages());
+         return true;
+      }
+      return false;
    }
 
    private boolean parseXMLWithSax(String xmlData) {

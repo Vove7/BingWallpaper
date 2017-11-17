@@ -8,7 +8,7 @@ import android.util.Log;
  */
 
 public class LogHelper {
-   private static boolean output = true;
+   private static boolean output = false;
 
    public static void logD(String tag, String msg) {
       if (output)

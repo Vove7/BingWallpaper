@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.WallpaperRecyclerViewAdapter;
@@ -32,7 +35,7 @@ public class GalleryFragment extends Fragment {
 
    private final static int mColumnCount = 2;
    private WallpaperRecyclerViewAdapter adapter;
-   private ArrayList<String> imagePaths;
+   private ArrayList<String> imagePaths = new ArrayList<>();
    private SwipeRefreshLayout swipeRefreshLayout;
 
    public GalleryFragment() {
@@ -76,7 +79,6 @@ public class GalleryFragment extends Fragment {
       adapter = new WallpaperRecyclerViewAdapter
               (this, imagePaths, getScreenWidth(this.getContext()), mColumnCount);
       recyclerView.setAdapter(adapter);
-
       return view;
    }
 
@@ -86,12 +88,13 @@ public class GalleryFragment extends Fragment {
    }
 
    private void refreshPaths() {
-      if (imagePaths == null) {
-         imagePaths = new ArrayList<>();
-      }
       File file = new File(IMAGE_DIRECTORY);
+      List<String> list = Arrays.asList(file.list());
+      Collections.sort(list);
+      Collections.sort(list, Collections.reverseOrder());
+
       imagePaths.clear();
-      imagePaths.addAll(Arrays.asList(file.list()));
+      imagePaths.addAll(list);
    }
 
    @Override
