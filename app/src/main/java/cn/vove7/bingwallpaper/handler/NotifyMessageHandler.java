@@ -9,6 +9,7 @@ import cn.vove7.bingwallpaper.utils.MyApplication;
 
 /**
  * Created by Vove on 2017/11/17.
+ * cn.vove7
  */
 
 public class NotifyMessageHandler extends Handler {

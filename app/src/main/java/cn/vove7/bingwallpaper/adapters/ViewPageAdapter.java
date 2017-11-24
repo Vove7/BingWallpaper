@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.ArrayRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
@@ -34,6 +33,7 @@ import static cn.vove7.bingwallpaper.utils.Utils.isFileExist;
 
 /**
  * Created by Vove on 2017/11/12.
+ * cn.vove7
  */
 
 public class ViewPageAdapter extends PagerAdapter {
@@ -131,6 +131,7 @@ public class ViewPageAdapter extends PagerAdapter {
               .skipMemoryCache(true)
               .error(R.drawable.ic_error_white_48dp);
       RequestBuilder builder;
+
       if (bitmap == null) {
          requestOptions.override(1920, 1080);
          builder = Glide.with(container)

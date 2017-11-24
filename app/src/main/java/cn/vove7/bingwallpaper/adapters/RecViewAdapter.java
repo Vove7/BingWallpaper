@@ -30,6 +30,7 @@ import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
 import cn.vove7.bingwallpaper.utils.BingImage;
+import cn.vove7.bingwallpaper.utils.MyApplication;
 
 import static cn.vove7.bingwallpaper.handler.InternetMessageHandler.ACTION_LOAD_MORE;
 
@@ -172,7 +173,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
          }
          break;
          case STATUS_XML_ERROR: {
-            errorTextOfFooter.setText(R.string.parse_xml_error);
+            errorTextOfFooter.setText(R.string.parse_json_error);
             llLoadedAll.setVisibility(View.GONE);
             llLoadError.setVisibility(View.VISIBLE);
             llLoading.setVisibility(View.GONE);
@@ -208,9 +209,10 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.ViewHold
          BingImage image = bingImages.get(position);
          runEnterAnimation(holder.itemView, position);
 
+         double qualityOfImage = MyApplication.getApplication().getQualityOfImage();
          RequestOptions requestOptions = new RequestOptions()
                  .centerCrop()
-                 .override((int) (1366 * 0.8), (int) (768 * 0.8))
+                 .override((int) (1366 * qualityOfImage), (int) (768 * qualityOfImage))
                  .skipMemoryCache(false)
                  .error(R.drawable.ic_error_black_36dp);
          Glide.with(holder.itemView)

@@ -32,7 +32,8 @@ public class DownloadService extends Service {//多任务下载，可管理任�
 
    public static final int RESOLUTION_RATIO_1080 = 0;
    public static final int RESOLUTION_RATIO_1200 = 1;
-   private static final String PREFIX_1200 = "https://www.bing.com/hpwp/";
+   public static final String PREFIX_1200 = "https://www.bing.com/hpwp/";
+   public static final String POSTFIX_1200 = "-1920x1200.png";
 
    private DownloadBinder mBinder = new DownloadBinder();
 
@@ -53,16 +54,28 @@ public class DownloadService extends Service {//多任务下载，可管理任�
             downloadTaskArray = new ArrayList<>();
             bingImages = urlArray;
             surplusTaskNum = totalTaskNum = bingImages.size();
+            DownloadTask.setService(DownloadService.this);//
             for (BingImage image : bingImages) {
-               DownloadTask downloadTask = new DownloadTask();
-               downloadTaskArray.add(downloadTask);
+
+               DownloadTask downloadTask;
+
+
                if (resolutionRatio == RESOLUTION_RATIO_1080) {//1920x1080
+                  downloadTask = new DownloadTask(
+                          image.getUrlBase() + "_1920x1080.jpg",
+                          image.getStartDate() + ".jpg"
+                  );
                   LogHelper.logD(null, image.getUrlBase() + "_1920x1080.jpg");
-                  downloadTask.execute(image.getUrlBase() + "_1920x1080.jpg", DownloadService.this, image.getStartDate() + ".jpg");
+
                } else {//1920x1200
+                  downloadTask = new DownloadTask(
+                          PREFIX_1200 + image.getHsh(),
+                          image.getStartDate() + POSTFIX_1200
+                  );
                   LogHelper.logD(null, PREFIX_1200 + image.getHsh());
-                  downloadTask.execute(PREFIX_1200 + image.getHsh(), DownloadService.this, image.getStartDate() + "-1920x1200.png");
                }
+               downloadTaskArray.add(downloadTask);
+               downloadTask.execute();//执行
             }
             startForeground(1, getNotification(getString(R.string.downloading)));
          }
@@ -147,16 +160,18 @@ public class DownloadService extends Service {//多任务下载，可管理任�
                  .setContentTitle(String.format(getString(R.string.download_detail), totalTaskNum - failedNum, failedNum));
          stopForeground(true);
 
+
          //清理
+         if (failedNum != downloadTaskArray.size()) {
+            Toast.makeText(MyApplication.getApplication().getMainActivity(), R.string.download_finish, Toast.LENGTH_SHORT)
+                    .show();
+         }
          downloadTaskArray.clear();
          downloadTaskArray = null;
-         Toast.makeText(MyApplication.getApplication().getMainActivity(), R.string.download_finish, Toast.LENGTH_SHORT)
-                 .show();
          if (isRefreshBtn)//刷新浏览activity按钮
             MyApplication.getApplication().getViewImageActivity().setButtonStatus(-1);
          LogHelper.logD("service->", "stop 下载完成");
-//         Snackbar.make(mainActivity.getRecyclerView(), R.string.download_finish, Snackbar.LENGTH_SHORT)
-//                 .show();
+
 //         stopSelf();//停止服务
       }
       return builder.build();

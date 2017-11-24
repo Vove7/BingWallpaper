@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +19,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import cn.vove7.bingwallpaper.R;
@@ -29,7 +27,7 @@ import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.Utils;
 
 import static cn.vove7.bingwallpaper.services.DownloadService.IMAGE_DIRECTORY;
-import static cn.vove7.bingwallpaper.utils.ViewUtils.getScreenWidth;
+import static cn.vove7.bingwallpaper.utils.Utils.getScreenWidth;
 
 public class GalleryFragment extends Fragment {
 
@@ -89,6 +87,7 @@ public class GalleryFragment extends Fragment {
 
    private void refreshPaths() {
       File file = new File(IMAGE_DIRECTORY);
+
       List<String> list = Arrays.asList(file.list());
       Collections.sort(list);
       Collections.sort(list, Collections.reverseOrder());

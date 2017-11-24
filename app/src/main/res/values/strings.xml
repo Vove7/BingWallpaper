@@ -10,7 +10,7 @@
     <string name="image_loading">正在加载… ฅ•̀∀•́ฅ</string>
     <string name="no_net_refresh">没有网络，下拉刷新 ฅ՞•ﻌ•՞ฅ</string>
     <string name="no_net">网卡爆了(｡•ˇ‸ˇ•｡)</string>
-    <string name="parse_xml_error">xml解析失败</string>
+    <string name="parse_json_error">json解析失败</string>
     <string name="no_response_body">无请求体(｡•ˇ‸ˇ•｡)</string>
     <string name="gallery">图库</string>
     <string name="other">其他</string>
@@ -32,7 +32,7 @@
     <string name="title_activity_view_image">ViewImageActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="share_to">分享到</string>
+    <string name="share_app_to">分享此软件到</string>
     <string name="thanks_support">谢谢支持</string>
     <string name="no_alipay">无支付宝客户端</string>
     <string name="confirm_clear_cache">确认清空缓存？</string>
@@ -63,4 +63,86 @@
     <string name="ratio_1920x1080">1920x1080</string>
     <string name="ratio_1920x1200">1920x1200(有水印)</string>
     <string name="please_download">请先下载此壁纸</string>
+    <string name="share_pic_to">分享图片到</string>
+
+    <string name="setting">设置</string>
+
+    <!-- Strings related to Settings -->
+
+
+    <string name="text_update_frequency">更新频率</string>
+    <string-array name="entries_frequency_of_update">
+        <item>5 分钟</item>
+        <item>20 分钟</item>
+        <item>30 分钟</item>
+        <item>1 小时</item>
+        <item>2 小时</item>
+        <item>5 小时</item>
+        <item>6 小时</item>
+    </string-array>
+    <string name="general_setting">基本设置</string>
+    <string name="alarm_wallpaper">定时壁纸</string>
+    <string name="switch_alarm_wallpaper">总开关</string>
+    <string name="wallpaper_refresh_interval">刷新间隔</string>
+    <string name="set_wallpaper_mode">刷新模式</string>
+    <string name="summary_set_wallpaper_mode">选择图片顺序</string>
+    <string name="default_order_wallpaper">order</string>
+    <string-array name="entries_order_wallpaper">
+        <item>顺序</item>
+        <item>随机</item>
+    </string-array>
+    <string-array name="entryValues_order_wallpaper">
+        <item>order</item>
+        <item>random</item>
+    </string-array>
+    <string name="default_quality_image">80</string>
+    <string name="resolution_ratio">分辨率</string>
+    <string name="summary_resolution_ration_wallpaper">播放壁纸的分辨率</string>
+    <string-array name="default_resolution_ration_wallpaper">
+        <item>1920x1200</item>
+    </string-array>
+    <string name="additional_setting">附加设置</string>
+    <string name="auto_update">自动更新</string>
+    <string name="summary_auto_update">每天00:00更新设置壁纸(可能有延迟)</string>
+    <string name="text_version">版本</string>
+    <string name="version_name">1.1</string>
+    <string name="about_hint">提示</string>
+    <string name="description_set_interval">动态设置壁纸时间间隔</string>
+    <string name="text_only_wifi">仅WIFI</string>
+    <string name="summary_only_wifi">仅在WIFI下更新</string>
+    <string name="text_quality_image">图片质量</string>
+    <string name="summary_quality_image">图片显示的质量</string>
+    <string name="start_alarm">定时已开启</string>
+    <string name="cancel_alarm">定时已取消</string>
+    <string name="update_setting">设置已更新</string>
+    <string name="atleast_one_rr">至少一种分辨率</string>
+    <string name="help">·下载全部图片时，已下载的不会再下载  \n
+
+
+    </string>
+    <string name="select_refresh_interval">选定刷新间隔</string>
+    <string-array name="entries_resolution_ratio_wallpaper">
+        <item>1920x1200</item>
+        <item>1920x1080</item>
+    </string-array>
+    <string-array name="entryValues_resolution_ratio_wallpaper">
+        <item>1920x1200</item>
+        <item>1920x1080</item>
+    </string-array>
+    <string-array name="entryValues_quality_image">
+        <item>50</item>
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+        <item>100</item>
+    </string-array>
+    <string-array name="entries_quality_image">
+        <item>50%</item>
+        <item>70%</item>
+        <item>80%</item>
+        <item>90%</item>
+        <item>100%</item>
+    </string-array>
+
+
 </resources>

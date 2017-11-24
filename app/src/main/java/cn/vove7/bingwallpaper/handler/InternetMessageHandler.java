@@ -3,23 +3,17 @@ package cn.vove7.bingwallpaper.handler;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
-import java.io.StringReader;
-
-import javax.xml.parsers.SAXParserFactory;
+import com.google.gson.JsonSyntaxException;
 
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.RecViewAdapter;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
 import cn.vove7.bingwallpaper.utils.BingImages;
-import cn.vove7.bingwallpaper.utils.LogHelper;
-import cn.vove7.bingwallpaper.utils.XmlContentHandler;
+import cn.vove7.bingwallpaper.utils.MyApplication;
 
 
 public class InternetMessageHandler extends Handler {
@@ -128,13 +122,21 @@ public class InternetMessageHandler extends Handler {
 
    private void parseFailed(Message message) {
       Snackbar.make(mainFragment.getRecyclerView(),
-              R.string.parse_xml_error, Snackbar.LENGTH_SHORT).show();
+              R.string.parse_json_error, Snackbar.LENGTH_SHORT).show();
       mainFragment.stopRefreshing();
+      mainFragment.showNetErrView();
    }
 
    private boolean parseJson(String jsonData) {
       Gson gson = new GsonBuilder().create();
-      BingImages images = gson.fromJson(jsonData, BingImages.class);
+      BingImages images = null;
+      try {
+         images = gson.fromJson(jsonData, BingImages.class);
+      } catch (JsonSyntaxException e) {
+         Toast.makeText(MyApplication.getApplication().getMainActivity(),
+                 "Bing资源获取失败", Toast.LENGTH_SHORT).show();
+         e.printStackTrace();
+      }
 
       if (images != null) {
 //         LogHelper.logD(null,images.toString());
@@ -142,23 +144,5 @@ public class InternetMessageHandler extends Handler {
          return true;
       }
       return false;
-   }
-
-   private boolean parseXMLWithSax(String xmlData) {
-      try {
-         SAXParserFactory factory = SAXParserFactory.newInstance();
-         XMLReader reader = factory.newSAXParser().getXMLReader();
-
-         XmlContentHandler xmlContentHandler = new XmlContentHandler();
-         reader.setContentHandler(xmlContentHandler);
-         reader.parse(new InputSource(new StringReader(xmlData)));
-         LogHelper.logD("urlList->", xmlContentHandler.getUrlList().toString());
-
-         mainFragment.addBingImages(xmlContentHandler.getBingImages());
-         return true;
-      } catch (Exception e) {
-         e.printStackTrace();
-         return false;
-      }
    }
 }

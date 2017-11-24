@@ -14,12 +14,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.content.ServiceConnection;
 
 import java.io.IOException;
-
-import android.content.ComponentName;
-import android.os.IBinder;
 
 import java.util.ArrayList;
 
@@ -31,6 +27,7 @@ import android.os.Message;
 import android.view.ViewGroup;
 
 import cn.vove7.bingwallpaper.services.DownloadService;
+import cn.vove7.bingwallpaper.services.DownloadServiceConnection;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 
 import cn.vove7.bingwallpaper.handler.InternetMessageHandler;
@@ -66,7 +63,8 @@ public class MainFragment extends Fragment {
 
    private RecViewAdapter recyclerAdapter;
    private RecyclerView recyclerView;
-   private DownloadService.DownloadBinder downloadBinder;
+   //下载服务
+   private DownloadServiceConnection downloadConnection = new DownloadServiceConnection();
 
    private int nowPage = 0;//当前页码
    private static final int totalPage = 2;//总共页码
@@ -78,19 +76,39 @@ public class MainFragment extends Fragment {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-
    }
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
+      nowPage = 0;
       contentView = inflater.inflate(R.layout.fragment_main, container, false);
+      LogHelper.logD(null, "mainFragment onCreateView");
       initComponent();
       initMainView();
 
       return contentView;
    }
 
+   @Override
+   public void onDestroyView() {
+      bingImages.clear();
+      LogHelper.logD(null, "mainFragment onDestroyView");
+      super.onDestroyView();
+   }
+
+   @Override
+   public void onDestroy() {
+      LogHelper.logD("mainFragment destroy");
+      bingImages.clear();
+      recyclerAdapter.notifyDataSetChanged();
+      recyclerAdapter = null;
+      getActivity().unbindService(downloadConnection);
+      LogHelper.logD("mainFragment unbindService");
+      Intent intentService = new Intent(this.getContext(), DownloadService.class);
+      getActivity().stopService(intentService);
+      super.onDestroy();
+   }
    public boolean haveImages() {
       return !(bingImages == null || bingImages.size() == 0);
    }
@@ -107,6 +125,7 @@ public class MainFragment extends Fragment {
          LogHelper.logD(null, "nowPage=0");
       }
    }
+
 
    public RecViewAdapter getRecyclerAdapter() {
       return recyclerAdapter;
@@ -171,7 +190,6 @@ public class MainFragment extends Fragment {
       Call call = client.newCall(request);
       call.enqueue(new Callback() {
          private Message message = new Message();
-
          @Override
          public void onFailure(@NonNull Call call, @NonNull IOException e) {//响应失败更新UI
             message.arg1 = NET_ERROR;//失败标志
@@ -204,12 +222,7 @@ public class MainFragment extends Fragment {
               index[pageIndex][0] + "&n=" + index[pageIndex][1] + "&mkt=zh-CN";
    }
 
-   @Override
-   public void onDestroyView() {
-      bingImages.clear();
-      LogHelper.logD(null, "main destory");
-      super.onDestroyView();
-   }
+
 
    private void initMainView() {//初始化主界面
       getBingImages(ACTION_REFRESH_GET);
@@ -249,9 +262,7 @@ public class MainFragment extends Fragment {
          @Override
          public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
-//            LogHelper.logD("dx:dy->", dx + ":" + dy);
-//            LogHelper.logD("isBottom->", String.valueOf(isSlideToBottom()));
-//            LogHelper.logD("isAllLoad>", String.valueOf(isAllLoad));
+
             if (!isAllLoad() && isSlideToBottom() && !onRefreshing) {//上拉加载,
                onRefreshing = true;
                recyclerAdapter.setFooter(RecViewAdapter.STATUS_LOADING);//显示footer
@@ -265,9 +276,9 @@ public class MainFragment extends Fragment {
          }
       });
       //开启服务
-      Intent intent = new Intent(this.getContext(), DownloadService.class);
-      getActivity().startService(intent);
-      getActivity().bindService(intent, connection, BIND_AUTO_CREATE);
+      Intent intentService = new Intent(this.getContext(), DownloadService.class);
+      getActivity().startService(intentService);
+      getActivity().bindService(intentService, downloadConnection, BIND_AUTO_CREATE);
    }
 
    private boolean isAllLoad() {
@@ -281,15 +292,9 @@ public class MainFragment extends Fragment {
    }
 
    @Override
-   public void onDestroy() {
-      getActivity().unbindService(connection);
-      super.onDestroy();
-   }
-
-   @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       int id = item.getItemId();
-
+      DownloadBinder downloadBinder = downloadConnection.getDownloadBinder();
       if (id == R.id.menu_download_all) {
          if (!downloadBinder.isDownloading()) {
             Snackbar.make(recyclerView, getString(R.string.begin_download), Snackbar.LENGTH_SHORT).show();
@@ -311,24 +316,4 @@ public class MainFragment extends Fragment {
 
    }
 
-   //下载服务
-   private ServiceConnection connection = new ServiceConnection() {
-      @Override
-      public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-         downloadBinder = (DownloadBinder) iBinder;
-         LogHelper.logD("serCon->", "onServiceConnected*******");
-      }
-
-      @Override
-      public void onBindingDied(ComponentName name) {
-         LogHelper.logD("serCon->", "onDied*******");
-         downloadBinder = null;
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName componentName) {
-         LogHelper.logD("serCon->", "onServiceDisconnected*******");
-         downloadBinder = null;
-      }
-   };
 }

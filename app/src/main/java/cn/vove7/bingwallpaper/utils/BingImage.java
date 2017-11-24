@@ -5,10 +5,11 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Vove on 2017/11/7.
+ * cn.vove7
  */
 
 public class BingImage {
-   @SerializedName("startdate")
+   @SerializedName("enddate")
    private String startDate;
    @SerializedName("urlbase")
    private String urlBase;

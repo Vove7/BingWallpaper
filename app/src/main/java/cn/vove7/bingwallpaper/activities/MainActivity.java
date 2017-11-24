@@ -33,10 +33,12 @@ import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
 import cn.vove7.bingwallpaper.fragments.GalleryFragment;
 import cn.vove7.bingwallpaper.utils.DonateHelper;
+import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.MyApplication;
-import cn.vove7.bingwallpaper.utils.ViewUtils;
+import cn.vove7.bingwallpaper.utils.FragmentUtils;
+import cn.vove7.bingwallpaper.utils.SettingHelper;
 
-import static cn.vove7.bingwallpaper.utils.ViewUtils.createFragment;
+import static cn.vove7.bingwallpaper.utils.FragmentUtils.createFragment;
 
 
 public class MainActivity extends AppCompatActivity
@@ -56,12 +58,11 @@ public class MainActivity extends AppCompatActivity
       initComponentView();
       initDefaultFragment();
       requestPermission();
+      SettingHelper.initSetting();
    }
 
    private void initDefaultFragment() {
-
-      mCurrentFragment = ViewUtils.createFragment(MainFragment.class);
-
+      mCurrentFragment = FragmentUtils.createFragment(MainFragment.class);
       mFragmentManager.beginTransaction().add(R.id.fragment_layout, mCurrentFragment).commit();
       mPreMenuItem = navigationView.getMenu().getItem(0);
       mPreMenuItem.setChecked(true);
@@ -72,8 +73,7 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void onBackPressed() {
       long now = System.currentTimeMillis();
-      if (now - t < 1000) {
-
+      if (now - t < 2000) {
          finish();
       } else {
          t = now;
@@ -102,7 +102,19 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
          }
       });
+      findViewById(R.id.btn_setting).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+         }
+      });
       return super.onCreateOptionsMenu(menu);
+   }
+
+   @Override
+   protected void onStop() {
+      LogHelper.logD("MainActivity onStop");
+      super.onStop();
    }
 
    private void initComponentView() {
@@ -117,7 +129,6 @@ public class MainActivity extends AppCompatActivity
       navigationView.setNavigationItemSelectedListener(this);
       mFragmentManager = getSupportFragmentManager();
    }
-
 
    //切换Fragment
    private void switchFragment(Class<?> clazz) {
@@ -137,6 +148,7 @@ public class MainActivity extends AppCompatActivity
       int id = item.getItemId();
       switch (id) {
          case R.id.nav_recent: {
+            MyApplication.getApplication().getMainActivity().getSupportActionBar().setTitle(R.string.app_name);
             switchFragment(MainFragment.class);
          }
          break;
@@ -154,6 +166,7 @@ public class MainActivity extends AppCompatActivity
          }
          break;
          case R.id.nav_gallery: {
+            MyApplication.getApplication().getMainActivity().getSupportActionBar().setTitle(R.string.gallery);
             switchFragment(GalleryFragment.class);
             GalleryFragment fragment = MyApplication.getApplication().getGalleryFragment();
             if (fragment != null)
@@ -205,6 +218,7 @@ public class MainActivity extends AppCompatActivity
                finish();//
             }
          }
+         break;
       }
 
    }

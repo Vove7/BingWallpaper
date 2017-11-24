@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout="@layout/preference_item"
+    android:padding="10dp">
+    <PreferenceCategory android:title="@string/general_setting">
+        <ListPreference
+            android:title="@string/text_quality_image"
+            android:entryValues="@array/entryValues_quality_image"
+            android:entries="@array/entries_quality_image"
+            android:defaultValue="@string/default_quality_image"
+            android:summary="@string/summary_quality_image"
+            android:key="quality_of_image" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/alarm_wallpaper">
+        <CheckBoxPreference
+            android:title="@string/switch_alarm_wallpaper"
+            android:defaultValue="false"
+            android:key="switch_alarm_wallpaper" />
+
+        <EditTextPreference
+            android:title="@string/wallpaper_refresh_interval"
+            android:dialogTitle="@string/select_refresh_interval"
+            android:dialogLayout="@layout/dialog_time_picker"
+            android:key="wallpaper_refresh_interval"
+            android:summary="@string/description_set_interval" />
+        <ListPreference
+            android:title="@string/set_wallpaper_mode"
+            android:entries="@array/entries_order_wallpaper"
+            android:entryValues="@array/entryValues_order_wallpaper"
+            android:defaultValue="@string/default_order_wallpaper"
+            android:summary="@string/summary_set_wallpaper_mode"
+            android:key="set_wallpaper_mode" />
+        <MultiSelectListPreference
+            android:title="@string/resolution_ratio"
+            android:key="resolution_ratio_wallpaper"
+            android:entryValues="@array/entryValues_resolution_ratio_wallpaper"
+            android:entries="@array/entries_resolution_ratio_wallpaper"
+            android:defaultValue="@array/default_resolution_ration_wallpaper"
+            android:summary="@string/summary_resolution_ration_wallpaper" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/additional_setting">
+        <CheckBoxPreference
+            android:title="@string/auto_update"
+            android:key="auto_update"
+            android:defaultValue="false"
+            android:summary="@string/summary_auto_update" />
+        <SwitchPreference
+            android:title="@string/text_only_wifi"
+            android:key="update_only_wifi"
+            android:summary="@string/summary_only_wifi"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

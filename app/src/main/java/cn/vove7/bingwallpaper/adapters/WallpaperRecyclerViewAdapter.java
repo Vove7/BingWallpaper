@@ -13,6 +13,7 @@ import com.bumptech.glide.request.RequestOptions;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.fragments.GalleryFragment;
+import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.Utils;
 
 import java.io.File;
@@ -44,10 +45,10 @@ public class WallpaperRecyclerViewAdapter extends RecyclerView.Adapter<Wallpaper
    @Override
    public void onBindViewHolder(final ViewHolder holder, final int position) {
       File file = new File(IMAGE_DIRECTORY + imagePaths.get(position));
-
+      double qualityOfImage = MyApplication.getApplication().getQualityOfImage();
       RequestOptions requestOptions = new RequestOptions()
               .centerCrop()
-              .override(img_width, img_height)
+              .override((int) (img_width * qualityOfImage), (int) (img_height * qualityOfImage))
               .skipMemoryCache(true)
               .error(R.drawable.ic_error_white_48dp);
       Glide.with(holder.mView)

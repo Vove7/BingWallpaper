@@ -3,6 +3,7 @@ package cn.vove7.bingwallpaper.utils;
 import android.app.Application;
 
 import cn.vove7.bingwallpaper.activities.MainActivity;
+import cn.vove7.bingwallpaper.activities.SettingsActivity;
 import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.fragments.GalleryFragment;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
@@ -15,9 +16,27 @@ import cn.vove7.bingwallpaper.fragments.MainFragment;
 public class MyApplication extends Application {
    private static MyApplication application;
    private MainActivity mainActivity;
+   private SettingsActivity settingsActivity;
    private MainFragment mainFragment;
    private GalleryFragment galleryFragment;
    private ViewImageActivity viewImageActivity;
+   private double qualityOfImage = 0.8;
+
+   public SettingsActivity getSettingsActivity() {
+      return settingsActivity;
+   }
+
+   public void setSettingsActivity(SettingsActivity settingsActivity) {
+      this.settingsActivity = settingsActivity;
+   }
+
+   public double getQualityOfImage() {
+      return qualityOfImage;
+   }
+
+   public void setQualityOfImage(double qualityOfImage) {
+      this.qualityOfImage = qualityOfImage;
+   }
 
    public ViewImageActivity getViewImageActivity() {
       return viewImageActivity;

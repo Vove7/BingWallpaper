@@ -1,4 +1,4 @@
-package cn.vove7.bingwallpaper.interfaces;
+package cn.vove7.bingwallpaper.services;
 
 public interface DownloadListener {
    void onProgress();
@@ -10,4 +10,6 @@ public interface DownloadListener {
    void onPause();
 
    void onCanceled();
+
+   void dealContent_0();
 }

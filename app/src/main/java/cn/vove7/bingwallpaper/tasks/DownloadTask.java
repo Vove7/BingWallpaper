@@ -11,13 +11,15 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 import cn.vove7.bingwallpaper.R;
-import cn.vove7.bingwallpaper.interfaces.DownloadListener;
+import cn.vove7.bingwallpaper.services.DownloadListener;
 import cn.vove7.bingwallpaper.services.DownloadService;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+
+import static cn.vove7.bingwallpaper.utils.Utils.getContentLength;
 
 
 /**
@@ -30,43 +32,70 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
    private static final int STATUS_FAILED = 1;
    private static final int STATUS_PAUSE = 2;
    private static final int STATUS_CANCELED = 3;
+   private static final int STATUS_CONTENT_LENGTH_0 = 4;
 
    private boolean isPause = false;
    private boolean isCanceled = false;
    @SuppressLint("StaticFieldLeak")
    private static DownloadService service;
+   String downloadUrl;
+   String filename;
+
+   public static void setService(DownloadService service) {
+      DownloadTask.service = service;
+   }
+
+   public DownloadTask(String downloadUrl, String filename) {
+      this.downloadUrl = downloadUrl;
+      this.filename = filename;
+   }
 
    private DownloadListener downloadListener = new DownloadListener() {
       @Override
+      public void dealContent_0() {
+         if (service != null) {
+            service.notifyResult(false);
+            service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+            Toast.makeText(service, filename + "无权下载，可选择1920x1080", Toast.LENGTH_SHORT).show();
+         }
+      }
+      @Override
       public void onProgress() {//暂未用
-         service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+         if (service != null) {
+            service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+         }
       }
 
       @Override
-      public void onSuccess() {//
-         //一个任务完成
-//         service.stopForeground(true);
-         service.notifyResult(true);//先通知
-         Notification notification = service.getNotification(service.getString(R.string.downloading));
-         service.getNotificationManager().notify(1, notification);
+      public void onSuccess() {
+         if (service != null) {
+            service.notifyResult(true);//先通知
+            Notification notification = service.getNotification(service.getString(R.string.downloading));
+            service.getNotificationManager().notify(1, notification);
+         }
       }
 
       @Override
       public void onFailed() {
-         service.notifyResult(false);
-         service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
-         Toast.makeText(service, R.string.download_failed, Toast.LENGTH_SHORT).show();
+         if (service != null) {
+            service.notifyResult(false);
+            service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+         }
       }
 
       @Override
       public void onPause() {//暂未用
-         Toast.makeText(service, "Paused", Toast.LENGTH_SHORT).show();
+         if (service != null) {
+            Toast.makeText(service, "Paused", Toast.LENGTH_SHORT).show();
+         }
       }
 
       @Override
       public void onCanceled() {//暂未用
-         service.stopForeground(true);
-         Toast.makeText(service, "Canceled", Toast.LENGTH_SHORT).show();
+         if (service != null) {
+            service.stopForeground(true);
+            Toast.makeText(service, "Canceled", Toast.LENGTH_SHORT).show();
+         }
       }
    };
 
@@ -85,9 +114,6 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
       InputStream inputStream = null;
       RandomAccessFile saveFile = null;
       File file = null;
-      String downloadUrl = (String) params[0];
-      service = (DownloadService) params[1];
-      String filename = (String) params[2];
       try {
          long downloadLength = 0;//文件长度
 
@@ -98,7 +124,7 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
          long contentLength = getContentLength(downloadUrl);
          if (contentLength == 0) {
             LogHelper.logD(null, "contentLength = 0");
-            return STATUS_FAILED;
+            return STATUS_CONTENT_LENGTH_0;
          } else if (contentLength == downloadLength) {
             LogHelper.logD(null, "文件已存在-->" + filename);
             return STATUS_SUCCESS;
@@ -125,12 +151,8 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
                   return STATUS_PAUSE;
                else {
                   saveFile.write(b, 0, len);
-//                  total += len;
-//                  int progress = (int) ((total + downloadLength) * 100 / contentLength);
-//                  publishProgress(progress);//实时更新
                }
             }
-//            publishProgress();//下载完成更新
             body.close();
             return STATUS_SUCCESS;
          }
@@ -157,15 +179,6 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
    }
 
    @Override
-   protected void onProgressUpdate(Integer[] values) {
-//      int progress = values[0];
-//      if (progress > lastProgress) {
-//         downloadListener.onProgress(progress);
-//         lastProgress = progress;
-//      }
-   }
-
-   @Override
    protected void onPostExecute(Integer status) {//接收doInBackground结果
       switch (status) {
          case STATUS_SUCCESS:
@@ -180,9 +193,11 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
          case STATUS_PAUSE:
             downloadListener.onPause();
             break;
+         case STATUS_CONTENT_LENGTH_0:
+            downloadListener.dealContent_0();
+            break;
          default:
             break;
-
       }
 
    }
@@ -193,20 +208,6 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
 
    public void cancelDownload() {
       isCanceled = true;
-   }
-
-   private long getContentLength(String downloadUrl) throws IOException {
-      OkHttpClient client = new OkHttpClient();
-      Request request = new Request.Builder()
-              .url(downloadUrl)
-              .build();
-      Response response = client.newCall(request).execute();
-      if (response != null && response.isSuccessful()) {
-         long contentLength = response.body().contentLength();
-         response.close();
-         return contentLength;
-      }
-      return 0;
    }
 
 }

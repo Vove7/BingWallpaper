@@ -1,13 +1,10 @@
 package cn.vove7.bingwallpaper.activities;
 
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +14,6 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -26,6 +22,7 @@ import java.util.ArrayList;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.adapters.ViewPageAdapter;
 import cn.vove7.bingwallpaper.services.DownloadService;
+import cn.vove7.bingwallpaper.services.DownloadServiceConnection;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.MyApplication;
@@ -34,7 +31,6 @@ import cn.vove7.bingwallpaper.utils.Utils;
 import static cn.vove7.bingwallpaper.adapters.ViewPageAdapter.IMAGE_FROM_INTERNET;
 import static cn.vove7.bingwallpaper.adapters.ViewPageAdapter.IMAGE_FROM_LOCAL;
 import static cn.vove7.bingwallpaper.services.DownloadService.*;
-import static cn.vove7.bingwallpaper.utils.Utils.isFileExist;
 import static cn.vove7.bingwallpaper.utils.Utils.isLocalHave;
 
 public class ViewImageActivity extends AppCompatActivity implements View.OnClickListener {
@@ -48,31 +44,9 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    //   private ImageButton shareBtn;
    private ImageButton deleteBtn;
    private ImageButton moreBtn;
-   private TextView download1080;
-   private TextView download1200;
 
-   private DownloadService.DownloadBinder downloadBinder;
+   private DownloadServiceConnection downloadConnection = new DownloadServiceConnection();
 
-
-   private ServiceConnection connection = new ServiceConnection() {
-      @Override
-      public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-         downloadBinder = (DownloadService.DownloadBinder) iBinder;
-         LogHelper.logD("serCon->", "onServiceConnected*******");
-      }
-
-      @Override
-      public void onBindingDied(ComponentName name) {
-         LogHelper.logD("serCon->", "onDied*******");
-         downloadBinder = null;
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName componentName) {
-         LogHelper.logD("serCon->", "onServiceDisconnected*******");
-         downloadBinder = null;
-      }
-   };
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -129,8 +103,15 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
 
       Intent intentService = new Intent(this, DownloadService.class);
       startService(intentService);
-      bindService(intentService, connection, BIND_AUTO_CREATE);
+      bindService(intentService, downloadConnection, BIND_AUTO_CREATE);
+   }
 
+   @Override
+   protected void onStop() {
+      LogHelper.logD("ViewActivity unbindService");
+      unbindService(downloadConnection);
+      stopService(new Intent(this, DownloadService.class));
+      super.onStop();
    }
 
    @Override
@@ -174,15 +155,8 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
                Toast.makeText(this, R.string.please_download, Toast.LENGTH_SHORT).show();
                return false;
             }
-
-            Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.putExtra("mimeType", "image/*");
-            Uri uri = Uri.parse(MediaStore.Images.Media
-                    .insertImage(getContentResolver(),
-                            BitmapFactory.decodeFile(getPath(pos)), "设置壁纸", null));
-            intent.setData(uri);
-            startActivityForResult(intent, SET_WALLPAPER);
+            //Utils.setWallpaper(this,BitmapFactory.decodeFile(getPath(pos)));
+            setWallpaperWithChoose(pos);
          }
          break;
          case R.id.view_download_1080: {
@@ -197,14 +171,25 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
       return false;
    }
 
+   private void setWallpaperWithChoose(int pos) {
+      Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
+      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      intent.putExtra("mimeType", "image/*");
+      Uri uri = Uri.parse(MediaStore.Images.Media
+              .insertImage(getContentResolver(),
+                      BitmapFactory.decodeFile(getPath(pos)), getString(R.string.text_set_wallpaper), null));
+      intent.setData(uri);
+      startActivityForResult(intent, SET_WALLPAPER);
+   }
+
    private void downloadImage(int rr) {
       int pos = viewPager.getCurrentItem();
-      if (!downloadBinder.isDownloading()) {
+      if (!downloadConnection.getDownloadBinder().isDownloading()) {
          Toast.makeText(this, R.string.begin_download, Toast.LENGTH_SHORT).show();
          BingImage bingImage = bingImages.get(pos);
          ArrayList<BingImage> arrayList = new ArrayList<>();
          arrayList.add(bingImage);
-         downloadBinder.startDownload(arrayList, true, rr);
+         downloadConnection.getDownloadBinder().startDownload(arrayList, true, rr);
       } else {
          Toast.makeText(this, R.string.file_already_exist, Toast.LENGTH_SHORT).show();
       }
