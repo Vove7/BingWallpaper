@@ -43,17 +43,21 @@
             android:gravity="bottom|end"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/copyright_text"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp"
-                android:textColor="@color/white"
+                android:layout_height="0dp">
+                <TextView
+                    android:id="@+id/copyright_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:textColor="@color/white"
 
-                android:textSize="15sp" />
+                    android:textSize="15sp" />
+            </ScrollView>
             <TextView
                 android:id="@+id/startdate_text"
                 android:layout_width="match_parent"

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -77,6 +78,10 @@ public class AlarmActivity extends Activity {
       String order = SettingHelper.getOrderMode(this);//随机、顺序
       LogHelper.logD("播放方式", order);
 
+      if (images.size() == 0) {
+         Log.d(this.getClass().getName(), "chooseWallpaper: 列表空");
+         return;
+      }
 
       String nextImage = (order.equals("order")) ?
               getNextWithOrder(images) :
@@ -92,7 +97,6 @@ public class AlarmActivity extends Activity {
    private String getNextWithOrder(ArrayList<String> images) {
       String nowWallpaper = SettingHelper.getNowWallpaper();//上一张
       LogHelper.logD("lastWallpaper", nowWallpaper);
-
       if (nowWallpaper == null) {//初始
          return images.get(0);
       } else {
@@ -104,6 +108,8 @@ public class AlarmActivity extends Activity {
    }
 
    private String getNextWithRandom(ArrayList<String> images) {
+      if(images.size()==1)
+         return images.get(0);
       String nowWallpaper = SettingHelper.getNowWallpaper();//上一张
       LogHelper.logD("lastWallpaper", nowWallpaper);
       String next;

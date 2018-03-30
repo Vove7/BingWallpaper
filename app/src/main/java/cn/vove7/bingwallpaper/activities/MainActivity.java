@@ -3,13 +3,12 @@ package cn.vove7.bingwallpaper.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -21,7 +20,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,7 +48,7 @@ public class MainActivity extends BaseThemeActivity
    private MainFragment mainFragment;
    private GalleryFragment galleryFragment;
    private DrawerLayout drawer;
-
+   Toolbar toolbar;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +121,7 @@ public class MainActivity extends BaseThemeActivity
    private void initComponentView() {
       drawer = findViewById(R.id.main_layout);
       //hideActionBar();
-      Toolbar toolbar = findViewById(R.id.toolbar);
+      toolbar = findViewById(R.id.toolbar);
       setSupportActionBar(toolbar);
       DrawerLayout drawer = findViewById(R.id.main_layout);
       ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -178,8 +176,7 @@ public class MainActivity extends BaseThemeActivity
       int id = item.getItemId();
       switch (id) {
          case R.id.nav_recent: {
-            MyApplication.getApplication().getMainActivity()
-                    .getSupportActionBar().setTitle(R.string.app_name);
+            toolbar.setTitle(R.string.app_name);
             switchFragment(INDEX_MAIN_FRAGMENT);
          }
          break;
@@ -198,8 +195,7 @@ public class MainActivity extends BaseThemeActivity
          }
          break;
          case R.id.nav_gallery: {
-            MyApplication.getApplication().getMainActivity()
-                    .getSupportActionBar().setTitle(R.string.gallery);
+            toolbar.setTitle(R.string.gallery);
             switchFragment(INDEX_GALLERY_FRAGMENT);
          }
          break;
@@ -224,26 +220,29 @@ public class MainActivity extends BaseThemeActivity
       return true;
    }
 
-   Dialog dialog;
+   //Dialog dialog;
+
 
    @SuppressLint("StaticFieldLeak")
-   private AsyncTask clearTask = new AsyncTask() {
-      @Override
-      protected Object doInBackground(Object[] objects) {
-         Glide.get(MainActivity.this).clearDiskCache();
-         return null;
-      }
-   };
+   public AsyncTask<Void, Void, Void> getTask() {
+      return new AsyncTask<Void, Void, Void>() {
+         @Override
+         protected Void doInBackground(Void... voids) {
+            Glide.get(MainActivity.this).clearDiskCache();
+            return null;
+         }
+      };
+   }
 
    private void clearCache() {
       AlertDialog.Builder dialog = new AlertDialog.Builder(this);
       dialog.setTitle(R.string.confirm_clear_cache);
-      dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialogInterface, int i) {
-            clearTask.execute();
-            Toast.makeText(MainActivity.this, getString(R.string.clear_successful), Toast.LENGTH_SHORT).show();
-         }
+      dialog.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
+         AsyncTask<Void, Void, Void> clearTask = getTask();
+         clearTask.execute();
+         new Handler().postDelayed(() ->
+                         Toast.makeText(MainActivity.this, getString(R.string.clear_successful), Toast.LENGTH_SHORT).show()
+                 , 1000);
       });
       dialog.setNegativeButton(R.string.cancel, null);
       dialog.show();

@@ -99,7 +99,7 @@
     <string name="resolution_ratio">分辨率</string>
     <string name="summary_resolution_ration_wallpaper">播放壁纸的分辨率</string>
     <string-array name="default_resolution_ration_wallpaper">
-        <item>1920x1200</item>
+        <item>1920x1080</item>
     </string-array>
     <string name="additional_setting">附加设置</string>
     <string name="auto_update">自动更新</string>
