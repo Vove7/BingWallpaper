@@ -8,12 +8,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.vove7.bingwallpaper.R;
-import cn.vove7.bingwallpaper.adapters.WallpaperRecyclerViewAdapter;
+import cn.vove7.bingwallpaper.adapters.GalleryRecyclerViewAdapter;
+import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.Utils;
 
@@ -32,9 +35,10 @@ import static cn.vove7.bingwallpaper.utils.Utils.getScreenWidth;
 public class GalleryFragment extends Fragment {
 
    private final static int mColumnCount = 2;
-   private WallpaperRecyclerViewAdapter adapter;
+   private GalleryRecyclerViewAdapter adapter;
    private ArrayList<String> imagePaths = new ArrayList<>();
    private SwipeRefreshLayout swipeRefreshLayout;
+   private RecyclerView recyclerView;
 
    public GalleryFragment() {
    }
@@ -49,49 +53,45 @@ public class GalleryFragment extends Fragment {
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
+      LogHelper.logD("gall onCreateView");
       View view = inflater.inflate(R.layout.fragment_gallery_list, container, false);
       swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_gallery);
-      swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-         @Override
-         public void onRefresh() {
-            new Handler().postDelayed(new Runnable() {
-               @Override
-               public void run() {
-                  refreshView();
-                  swipeRefreshLayout.setRefreshing(false);
-               }
-            }, 300);
-         }
-      });
+      swipeRefreshLayout.setOnRefreshListener(() -> new Handler().postDelayed(() -> {
+         refreshView();
+         swipeRefreshLayout.setRefreshing(false);
+      }, 300));
       setHasOptionsMenu(true);
       // Set the adapter
 
       Context context = view.getContext();
-      RecyclerView recyclerView = view.findViewById(R.id.list);
-      if (mColumnCount <= 1) {
-         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-      } else {
-         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+      recyclerView = view.findViewById(R.id.list);
+
+      recyclerView.setLayoutManager(mColumnCount <= 1 ?
+              new LinearLayoutManager(context) :
+              new GridLayoutManager(context, mColumnCount));
+
+      getPaths();
+      if (adapter == null) {
+         adapter = new GalleryRecyclerViewAdapter
+                 (this, imagePaths, getScreenWidth(this.getContext()), mColumnCount);
+         recyclerView.setAdapter(adapter);
+         adapter.notifyItemRangeChanged(0, imagePaths.size());
       }
-      refreshPaths();
-      adapter = new WallpaperRecyclerViewAdapter
-              (this, imagePaths, getScreenWidth(this.getContext()), mColumnCount);
-      recyclerView.setAdapter(adapter);
       return view;
    }
 
    public void refreshView() {
-      refreshPaths();
+      getPaths();
+      ((SimpleItemAnimator) recyclerView.getItemAnimator())
+              .setSupportsChangeAnimations(false); //取消RecyclerView的动画效果
       adapter.notifyDataSetChanged();
    }
 
-   private void refreshPaths() {
+   private void getPaths() {
       File file = new File(IMAGE_DIRECTORY);
-
       List<String> list = Arrays.asList(file.list());
       Collections.sort(list);
       Collections.sort(list, Collections.reverseOrder());
-
       imagePaths.clear();
       imagePaths.addAll(list);
    }

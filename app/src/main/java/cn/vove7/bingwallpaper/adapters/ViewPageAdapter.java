@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
@@ -67,10 +69,14 @@ public class ViewPageAdapter extends PagerAdapter {
       return view == object;
    }
 
+   @NonNull
    @Override
    public Object instantiateItem(ViewGroup container, int position) {
       View view = LayoutInflater.from(context).inflate(R.layout.fragment_view_image_activity, container, false);
-      final ImageView imageView = view.findViewById(R.id.view_image);
+      final PhotoView imageView = view.findViewById(R.id.view_image);
+      imageView.setMaxScale(3.0f);
+      imageView.enable();
+
       progressBar = view.findViewById(R.id.view_progressbar);
 
       switch (imageFrom) {

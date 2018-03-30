@@ -6,6 +6,7 @@
     android:layout_height="@dimen/nav_header_height"
     android:background="@drawable/nav_background"
     android:gravity="bottom"
+    android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:paddingBottom="5dp"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -15,6 +16,7 @@
 
     <ImageView
         android:id="@+id/imageView"
+        android:fitsSystemWindows="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"

@@ -46,6 +46,13 @@ public class Utils {
       LogHelper.logD(null, String.valueOf(i + 2 * j));
       return i + 2 * j;
    }
+   public static void openMarket(Context context,String pkgName) {
+      String str = "market://details?id=" + pkgName;
+      Intent localIntent = new Intent("android.intent.action.VIEW");
+      localIntent.setData(Uri.parse(str));
+      context.startActivity(localIntent);
+   }
+
 
    public static void shareTo(Context context) {
       Intent intent = new Intent(Intent.ACTION_SEND);
@@ -120,8 +127,11 @@ public class Utils {
       String[] num = s.split(":");
       if (num.length == 2) {
          try {
-            long hour = Long.parseLong(num[0]);
-            long min = Long.parseLong(num[1]);
+            int hour = Integer.parseInt(num[0]);
+            int min = Integer.parseInt(num[1]);
+            if (hour == 0 && min == 0) {
+               return -1;
+            }
             return (hour * 60 + min) * 60000;
          } catch (NumberFormatException e) {
             e.printStackTrace();

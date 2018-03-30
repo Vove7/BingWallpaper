@@ -1,16 +1,18 @@
 package cn.vove7.bingwallpaper.services;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat.Builder;
+import android.support.annotation.RequiresApi;
 import android.widget.Toast;
-
 
 import java.io.File;
 import java.util.ArrayList;
@@ -77,7 +79,8 @@ public class DownloadService extends Service {//多任务下载，可管理任�
                downloadTaskArray.add(downloadTask);
                downloadTask.execute();//执行
             }
-            startForeground(1, getNotification(getString(R.string.downloading)));
+            buildNotificationManager(STATUS_INIT);
+            startForeground(N_ID, getNotification());
          }
       }
 
@@ -111,7 +114,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
                if (file.exists()) {
                   file.delete();
                }
-               getNotificationManager().cancel(1);
+               buildNotificationManager(STATUS_DOWNLOADING).cancel(N_ID);
                stopForeground(true);
 
                Toast.makeText(DownloadService.this, "Canceled", Toast.LENGTH_SHORT).show();
@@ -131,10 +134,6 @@ public class DownloadService extends Service {//多任务下载，可管理任�
    }
 
 
-   public NotificationManager getNotificationManager() {
-      return (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-   }
-
    public void notifyResult(boolean isSuccessful) {//通知下载结果
       surplusTaskNum--;
       if (!isSuccessful) {
@@ -142,22 +141,45 @@ public class DownloadService extends Service {//多任务下载，可管理任�
       }
    }
 
-   public Notification getNotification(String title) {
-      Builder builder = new Builder(this)
+   public void showNotification() {
+      buildNotification();
+
+      int status = surplusTaskNum > 0 ? STATUS_DOWNLOADING : STATUS_FINISH;
+      buildNotificationManager(status).notify(N_ID, notification);
+      //return notification;
+   }
+
+   public static final int N_ID = 5127;
+
+   private Notification notification;
+
+   public Notification getNotification() {
+      if (notification == null) {
+         buildNotification();
+      }
+      return notification;
+   }
+
+   private void buildNotification() {
+      Notification.Builder builder = new Notification.Builder(this)
               .setSmallIcon(R.mipmap.ic_launcher)
-              .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-//              .setContentIntent(pi)
-              .setContentTitle(title);//开始显示
+              .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+              //.setContentTitle(content);
+      //.setContentText(content);//开始显示
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+         builder.setChannelId("bing_wallpaper");
+      }
 
       if (surplusTaskNum > 0) {
          stopForeground(false);
-         builder.setContentText(String.format(getString(R.string.surplus_task_text), surplusTaskNum));
          int process = (int) ((1 - ((float) surplusTaskNum / totalTaskNum)) * 100);
-         builder.setProgress(100, process, false);
+         builder.setContentTitle(getString(R.string.downloading))
+                 .setProgress(100, process, false)
+                 .setContentText(String.format(getString(R.string.surplus_task_text), surplusTaskNum));
       } else {
-         builder.setAutoCancel(true)
-                 .setTicker(getString(R.string.download_finish))
-                 .setContentTitle(String.format(getString(R.string.download_detail), totalTaskNum - failedNum, failedNum));
+         builder.setAutoCancel(false)
+                 .setContentTitle(getString(R.string.download_finish))
+                 .setContentText(String.format(getString(R.string.download_detail), totalTaskNum - failedNum, failedNum));
          stopForeground(true);
 
 
@@ -172,8 +194,44 @@ public class DownloadService extends Service {//多任务下载，可管理任�
             MyApplication.getApplication().getViewImageActivity().setButtonStatus(-1);
          LogHelper.logD("service->", "stop 下载完成");
 
-//         stopSelf();//停止服务
       }
-      return builder.build();
+
+      notification = builder.build();
+   }
+
+   public static final int STATUS_INIT = -1;
+   public static final int STATUS_DOWNLOADING = 0;
+   public static final int STATUS_FINISH = 1;
+   NotificationManager mNotificationManager;
+
+   public NotificationManager buildNotificationManager(int status) {
+      if (mNotificationManager != null) {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = buildChannel(status);
+            mNotificationManager.createNotificationChannel(mChannel);
+         }
+         return mNotificationManager;
+      }
+      mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+         NotificationChannel mChannel = buildChannel(status);
+         mNotificationManager.createNotificationChannel(mChannel);
+      }
+      return mNotificationManager;
+   }
+
+   @RequiresApi(api = Build.VERSION_CODES.O)
+   private NotificationChannel buildChannel(int s) {
+      String id = "bing_wallpaper";
+      CharSequence name = "download";
+      String description = "";
+      int importance = NotificationManager.IMPORTANCE_LOW;
+      NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+
+      mChannel.setDescription(description);
+      if (s != STATUS_DOWNLOADING)
+         mChannel.enableVibration(true);
+      return mChannel;
    }
 }

@@ -7,6 +7,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="StatusBarStyle" parent="AppTheme">
+        <item name="android:statusBarColor">#00000000</item>
+    </style>
 
     <style name="Fullscreen" parent="AppTheme">
         <item name="android:windowFullscreen">true</item>

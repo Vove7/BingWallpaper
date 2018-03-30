@@ -69,7 +69,7 @@ public class InternetMessageHandler extends Handler {
                mainFragment.getRecyclerAdapter()
                        .setFooter(RecViewAdapter.STATUS_XML_ERROR);
             }
-            mainFragment.setOnRefreshing(false);
+            mainFragment.stopRefreshing();
          }
          break;
          case ACTION_REFRESH_GET: {
@@ -103,7 +103,7 @@ public class InternetMessageHandler extends Handler {
             mainFragment.getRecyclerAdapter()
                     .setFooter(RecViewAdapter.STATUS_NET_ERROR);
          }
-         mainFragment.setOnRefreshing(false);
+         mainFragment.stopRefreshing();
          break;
 
       }

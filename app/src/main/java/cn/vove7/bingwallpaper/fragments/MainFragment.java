@@ -55,9 +55,9 @@ import static cn.vove7.bingwallpaper.services.DownloadService.RESOLUTION_RATIO_1
 
 public class MainFragment extends Fragment {
    private View contentView;
-   private SwipeRefreshLayout swipeRefreshLayout;
    private View netErrorLayout;
    private View loadingLayout;
+   private SwipeRefreshLayout swipeRefreshLayout;
    private ArrayList<BingImage> bingImages = new ArrayList<>();
    private InternetMessageHandler internetMessageHandler;
 
@@ -143,10 +143,6 @@ public class MainFragment extends Fragment {
    }
 
    private boolean onRefreshing = false;//上拉正在刷新标志
-
-   public void setOnRefreshing(boolean onRefreshing) {
-      this.onRefreshing = onRefreshing;
-   }
 
    public void stopRefreshing() {
       if (swipeRefreshLayout.isRefreshing())
@@ -234,18 +230,15 @@ public class MainFragment extends Fragment {
       internetMessageHandler = new InternetMessageHandler(this);
       //下拉刷新控件
       swipeRefreshLayout = (SwipeRefreshLayout) $(R.id.swipe_refresh);
-      swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-         @Override
-         public void onRefresh() {//下拉刷新
-            if (haveImages()) {//有图
-               getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);
-               LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);");
-            } else {
-               getBingImages(ACTION_REFRESH_GET);
-               LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET);");
-            }
-//            refreshImage();
+      swipeRefreshLayout.setOnRefreshListener(() -> {//下拉刷新
+         if (haveImages()) {//有图
+            getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);
+            LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);");
+         } else {
+            getBingImages(ACTION_REFRESH_GET);
+            LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET);");
          }
+//            refreshImage();
       });
       //netErrorLayout
       netErrorLayout = $(R.id.net_error_layout);
@@ -266,12 +259,7 @@ public class MainFragment extends Fragment {
             if (!isAllLoad() && isSlideToBottom() && !onRefreshing) {//上拉加载,
                onRefreshing = true;
                recyclerAdapter.setFooter(RecViewAdapter.STATUS_LOADING);//显示footer
-               new Handler().postDelayed(new Runnable() {
-                  @Override
-                  public void run() {
-                     getBingImages(ACTION_LOAD_MORE);
-                  }
-               }, 800);//延时
+               new Handler().postDelayed(() -> getBingImages(ACTION_LOAD_MORE), 800);//延时
             }
          }
       });

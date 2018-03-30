@@ -21,14 +21,14 @@ import java.util.ArrayList;
 
 import static cn.vove7.bingwallpaper.services.DownloadService.IMAGE_DIRECTORY;
 
-public class WallpaperRecyclerViewAdapter extends RecyclerView.Adapter<WallpaperRecyclerViewAdapter.ViewHolder> {
+public class GalleryRecyclerViewAdapter extends RecyclerView.Adapter<GalleryRecyclerViewAdapter.ViewHolder> {
 
    private final ArrayList<String> imagePaths;
    private final int img_width;
    private final int img_height;
    private GalleryFragment fragment;
 
-   public WallpaperRecyclerViewAdapter(GalleryFragment fragment, ArrayList<String> items, int screenWidth, int column_count) {
+   public GalleryRecyclerViewAdapter(GalleryFragment fragment, ArrayList<String> items, int screenWidth, int column_count) {
       this.fragment = fragment;
       img_width = screenWidth / column_count;
       img_height = 1080 * img_width / 1920;
@@ -45,24 +45,20 @@ public class WallpaperRecyclerViewAdapter extends RecyclerView.Adapter<Wallpaper
    @Override
    public void onBindViewHolder(final ViewHolder holder, final int position) {
       File file = new File(IMAGE_DIRECTORY + imagePaths.get(position));
-      double qualityOfImage = MyApplication.getApplication().getQualityOfImage();
       RequestOptions requestOptions = new RequestOptions()
               .centerCrop()
-              .override((int) (img_width * qualityOfImage), (int) (img_height * qualityOfImage))
+              .override(img_width, img_height)
               .skipMemoryCache(true)
               .error(R.drawable.ic_error_white_48dp);
       Glide.with(holder.mView)
               .load(file).apply(requestOptions)
               .into(holder.mImageView);
-      holder.mImageView.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Intent viewIntent = new Intent(fragment.getContext(), ViewImageActivity.class);
-            viewIntent.putExtra("from", ViewPageAdapter.IMAGE_FROM_LOCAL);
-            viewIntent.putExtra("startdates", Utils.List2Array(imagePaths));
-            viewIntent.putExtra("pos", position);
-            fragment.startActivity(viewIntent);
-         }
+      holder.mImageView.setOnClickListener(view -> {
+         Intent viewIntent = new Intent(fragment.getContext(), ViewImageActivity.class);
+         viewIntent.putExtra("from", ViewPageAdapter.IMAGE_FROM_LOCAL);
+         viewIntent.putExtra("startdates", Utils.List2Array(imagePaths));
+         viewIntent.putExtra("pos", position);
+         fragment.startActivity(viewIntent);
       });
 
    }
@@ -80,6 +76,7 @@ public class WallpaperRecyclerViewAdapter extends RecyclerView.Adapter<Wallpaper
          super(view);
          mView = view;
          mImageView = view.findViewById(R.id.gallery_image);
+         mImageView.setMinimumWidth(Utils.getScreenWidth(fragment.getContext())/2);
       }
    }
 }

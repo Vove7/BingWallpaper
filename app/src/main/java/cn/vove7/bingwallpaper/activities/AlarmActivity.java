@@ -19,6 +19,7 @@ import cn.vove7.bingwallpaper.utils.AlarmHelper;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.BingImages;
 import cn.vove7.bingwallpaper.utils.LogHelper;
+import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.SettingHelper;
 import cn.vove7.bingwallpaper.utils.Utils;
 import okhttp3.Call;
@@ -44,6 +45,7 @@ public class AlarmActivity extends Activity {
       super.onCreate(savedInstanceState);
       String action = getIntent().getAction();
       LogHelper.logD(action);
+      MyApplication.getApplication().setAlarmActivity(this);
 
       if (ACTION_ALARM_SET_WALLPAPER.equals(action)) {
          chooseWallpaper();
@@ -114,8 +116,7 @@ public class AlarmActivity extends Activity {
 
    private ArrayList<String> filterFile() {
       File dir = new File(IMAGE_DIRECTORY);
-      ArrayList<String> files = new ArrayList<>();
-      files.addAll(Arrays.asList(dir.list()));
+      ArrayList<String> files = new ArrayList<>(Arrays.asList(dir.list()));
       if (files.size() == 0) {
          LogHelper.logD("无图片资源");
          return null;

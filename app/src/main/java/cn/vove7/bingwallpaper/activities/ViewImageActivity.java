@@ -1,15 +1,14 @@
 package cn.vove7.bingwallpaper.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +29,9 @@ import cn.vove7.bingwallpaper.utils.Utils;
 
 import static cn.vove7.bingwallpaper.adapters.ViewPageAdapter.IMAGE_FROM_INTERNET;
 import static cn.vove7.bingwallpaper.adapters.ViewPageAdapter.IMAGE_FROM_LOCAL;
-import static cn.vove7.bingwallpaper.services.DownloadService.*;
+import static cn.vove7.bingwallpaper.services.DownloadService.IMAGE_DIRECTORY;
+import static cn.vove7.bingwallpaper.services.DownloadService.RESOLUTION_RATIO_1080;
+import static cn.vove7.bingwallpaper.services.DownloadService.RESOLUTION_RATIO_1200;
 import static cn.vove7.bingwallpaper.utils.Utils.isLocalHave;
 
 public class ViewImageActivity extends AppCompatActivity implements View.OnClickListener {
@@ -102,14 +103,15 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
       setButtonStatus(pos);
 
       Intent intentService = new Intent(this, DownloadService.class);
-      startService(intentService);
       bindService(intentService, downloadConnection, BIND_AUTO_CREATE);
+      startService(intentService);
    }
 
    @Override
    protected void onStop() {
       LogHelper.logD("ViewActivity unbindService");
-      unbindService(downloadConnection);
+
+//      unbindService(downloadConnection);
       stopService(new Intent(this, DownloadService.class));
       super.onStop();
    }
@@ -246,31 +248,23 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
          }
          break;
          case R.id.view_back: {//返回
-            new Handler().postDelayed(new Runnable() {
-               @Override
-               public void run() {
-                  onBackPressed();
-               }
-            }, 100);
+            new Handler().postDelayed(this::onBackPressed, 100);
          }
          break;
          case R.id.view_delete: {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.confirm_delete);
-            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialogInterface, int i) {
-                  File file = new File(getPath(pos));
-                  if (file.exists()) {
-                     if (file.delete()) {
-                        Toast.makeText(ViewImageActivity.this, R.string.delete_successful, Toast.LENGTH_SHORT).show();
-                        if (imageFrom == IMAGE_FROM_LOCAL) {
-                           MyApplication.getApplication().getGalleryFragment().refreshView();
-                        } else {
-                           setButtonStatus(pos);
-                        }
-                        onBackPressed();//返回
+            builder.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
+               File file = new File(getPath(pos));
+               if (file.exists()) {
+                  if (file.delete()) {
+                     Toast.makeText(ViewImageActivity.this, R.string.delete_successful, Toast.LENGTH_SHORT).show();
+                     if (imageFrom == IMAGE_FROM_LOCAL) {
+                        MyApplication.getApplication().getGalleryFragment().refreshView();
+                     } else {
+                        setButtonStatus(pos);
                      }
+                     onBackPressed();//返回
                   }
                }
             });

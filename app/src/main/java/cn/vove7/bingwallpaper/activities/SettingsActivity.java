@@ -1,19 +1,15 @@
 package cn.vove7.bingwallpaper.activities;
 
 import android.app.AlarmManager;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TimePicker;
-
 
 import java.util.Set;
 
@@ -22,7 +18,6 @@ import cn.vove7.bingwallpaper.utils.AlarmHelper;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.SettingHelper;
-import cn.vove7.bingwallpaper.utils.Utils;
 
 import static cn.vove7.bingwallpaper.utils.SettingHelper.disEnabledAlarmPreference;
 import static cn.vove7.bingwallpaper.utils.SettingHelper.keys;
@@ -80,36 +75,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 
          if (preference.getKey().equals(keys[2])) {
             LogHelper.logD("设置间隔");
-            Dialog dialog = ((EditTextPreference) preference).getDialog();
-            final TimePicker timePicker = (dialog.findViewById(R.id.time_picker));
-            timePicker.setIs24HourView(true);
-            timePicker.setDrawingCacheEnabled(true);
-
-            String[] s = SettingHelper.getIntervalStr().split(":");//old
-
-            timePicker.setCurrentHour(Integer.parseInt(s[0]));//
-            timePicker.setCurrentMinute(Integer.parseInt(s[1]));
-
-            //OK
-            dialog.findViewById(android.R.id.button1).setOnClickListener(view -> {
-               String interval = timePicker.getCurrentHour() + ":" +
-                       timePicker.getCurrentMinute();
-
-               LogHelper.logD(interval);
-               SettingHelper.setInterval(interval);
-               new AlarmHelper(SettingsActivity.this).startAlarmForActivityWithInterval(
-                       AlarmActivity.ACTION_ALARM_SET_WALLPAPER, Utils.interval2Mills(interval),
-                       AlarmHelper.REQUEST_CODE_ALARM_SET_WALLPAPER);
-               showSnack(R.string.update_setting);
-               preference.setSummary(interval);
-               LogHelper.logD("点击OK");
-               dialog.dismiss();//关闭
-            });
 
          }
          return false;
       });
-
 
       for (String key : keys) {
          findPreference(key).setOnPreferenceChangeListener(this);
@@ -182,7 +151,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
       //返回true保证自动存储，false不再自动存取
    }
 
-   private void showSnack(int resId) {
+   public void showSnack(int resId) {
       Snackbar.make(getListView(), getString(resId), Snackbar.LENGTH_SHORT).show();
    }
 }

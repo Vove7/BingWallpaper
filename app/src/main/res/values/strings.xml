@@ -50,7 +50,7 @@
     <string name="text_back">返回</string>
 
     <string name="text_recent_image">最近</string>
-    <string name="text_theme">主题</string>
+    <string name="text_random_change_theme">随机换肤</string>
     <string name="check_update">检查更新</string>
     <string name="text_share">分享</string>
     <string name="text_delete">删除</string>
@@ -105,7 +105,7 @@
     <string name="auto_update">自动更新</string>
     <string name="summary_auto_update">每天00:00更新设置壁纸(可能有延迟)</string>
     <string name="text_version">版本</string>
-    <string name="version_name">1.1</string>
+    <string name="version_name">2.0.1</string>
     <string name="about_hint">提示</string>
     <string name="description_set_interval">动态设置壁纸时间间隔</string>
     <string name="text_only_wifi">仅WIFI</string>
@@ -117,10 +117,12 @@
     <string name="update_setting">设置已更新</string>
     <string name="atleast_one_rr">至少一种分辨率</string>
     <string name="help">·下载全部图片时，已下载的不会再下载  \n
+        正常返回退出，定时可正常工作；
 
 
     </string>
     <string name="select_refresh_interval">选定刷新间隔</string>
+    <string name="time_format_error">不要逗啦/./</string>
     <string-array name="entries_resolution_ratio_wallpaper">
         <item>1920x1200</item>
         <item>1920x1080</item>

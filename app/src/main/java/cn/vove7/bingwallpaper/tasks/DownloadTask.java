@@ -1,12 +1,10 @@
 package cn.vove7.bingwallpaper.tasks;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
@@ -55,14 +53,16 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
       public void dealContent_0() {
          if (service != null) {
             service.notifyResult(false);
-            service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+            service.showNotification();
+
             Toast.makeText(service, filename + "无权下载，可选择1920x1080", Toast.LENGTH_SHORT).show();
          }
       }
+
       @Override
       public void onProgress() {//暂未用
          if (service != null) {
-            service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+            service.showNotification();
          }
       }
 
@@ -70,8 +70,8 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
       public void onSuccess() {
          if (service != null) {
             service.notifyResult(true);//先通知
-            Notification notification = service.getNotification(service.getString(R.string.downloading));
-            service.getNotificationManager().notify(1, notification);
+            service.showNotification();
+            //service.buildNotificationManager().notify(1, notification);
          }
       }
 
@@ -79,7 +79,7 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
       public void onFailed() {
          if (service != null) {
             service.notifyResult(false);
-            service.getNotificationManager().notify(1, service.getNotification(service.getString(R.string.downloading)));
+            service.showNotification();
          }
       }
 

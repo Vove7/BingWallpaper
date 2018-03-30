@@ -48,6 +48,8 @@ public class SettingHelper {
                  .getMainActivity();
          if (activity == null)
             activity = MyApplication.getApplication().getSettingsActivity();
+         if (activity == null)
+            activity = MyApplication.getApplication().getAlarmActivity();
          preferences = activity.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
       }
    }

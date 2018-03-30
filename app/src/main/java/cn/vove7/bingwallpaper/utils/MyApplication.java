@@ -1,16 +1,19 @@
 package cn.vove7.bingwallpaper.utils;
 
 import android.app.Application;
+import android.os.StrictMode;
 
+import cn.vove7.bingwallpaper.activities.AlarmActivity;
 import cn.vove7.bingwallpaper.activities.MainActivity;
 import cn.vove7.bingwallpaper.activities.SettingsActivity;
 import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.fragments.GalleryFragment;
 import cn.vove7.bingwallpaper.fragments.MainFragment;
+import cn.vove7.easytheme.EasyTheme;
+import cn.vove7.easytheme.ThemeSet;
 
 /**
  * Created by Vove on 2017/11/10.
- *
  */
 
 public class MyApplication extends Application {
@@ -20,6 +23,7 @@ public class MyApplication extends Application {
    private MainFragment mainFragment;
    private GalleryFragment galleryFragment;
    private ViewImageActivity viewImageActivity;
+   private AlarmActivity alarmActivity;
    private double qualityOfImage = 0.8;
 
    public SettingsActivity getSettingsActivity() {
@@ -28,6 +32,14 @@ public class MyApplication extends Application {
 
    public void setSettingsActivity(SettingsActivity settingsActivity) {
       this.settingsActivity = settingsActivity;
+   }
+
+   public AlarmActivity getAlarmActivity() {
+      return alarmActivity;
+   }
+
+   public void setAlarmActivity(AlarmActivity alarmActivity) {
+      this.alarmActivity = alarmActivity;
    }
 
    public double getQualityOfImage() {
@@ -75,6 +87,8 @@ public class MyApplication extends Application {
    }
 
    public static MyApplication getApplication() {
+      if (application == null)
+         application = new MyApplication();
       return application;
    }
 
@@ -82,5 +96,10 @@ public class MyApplication extends Application {
    public void onCreate() {
       super.onCreate();
       application = this;
+      EasyTheme.init(this, ThemeSet.ThemeMode.Light, ThemeSet.Theme.DeepOrange);
+      // android 7.0系统解决uri外部
+      StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+      StrictMode.setVmPolicy(builder.build());
+      builder.detectFileUriExposure();
    }
 }
