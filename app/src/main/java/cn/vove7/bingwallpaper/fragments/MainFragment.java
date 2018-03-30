@@ -275,6 +275,8 @@ public class MainFragment extends Fragment {
 
    @Override
    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+      if(menu.size()==2)
+         return;
       inflater.inflate(R.menu.main_more_menu, menu);
       super.onCreateOptionsMenu(menu, inflater);
    }

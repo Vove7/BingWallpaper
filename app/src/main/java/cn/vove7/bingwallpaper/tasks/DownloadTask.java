@@ -11,13 +11,12 @@ import java.io.RandomAccessFile;
 import cn.vove7.bingwallpaper.R;
 import cn.vove7.bingwallpaper.services.DownloadListener;
 import cn.vove7.bingwallpaper.services.DownloadService;
+import cn.vove7.bingwallpaper.utils.DBHelper;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-
-import static cn.vove7.bingwallpaper.utils.Utils.getContentLength;
 
 
 /**
@@ -36,8 +35,8 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
    private boolean isCanceled = false;
    @SuppressLint("StaticFieldLeak")
    private static DownloadService service;
-   String downloadUrl;
-   String filename;
+   private String downloadUrl;
+   private String filename;
 
    public static void setService(DownloadService service) {
       DownloadTask.service = service;
@@ -68,10 +67,12 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
 
       @Override
       public void onSuccess() {
+         DBHelper.setDownloadOk(downloadUrl);
+
          if (service != null) {
             service.notifyResult(true);//先通知
             service.showNotification();
-            //service.buildNotificationManager().notify(1, notification);
+
          }
       }
 
@@ -121,12 +122,14 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
          if (file.exists()) {//续点
             downloadLength = file.length();
          }
-         long contentLength = getContentLength(downloadUrl);
-         if (contentLength == 0) {
-            LogHelper.logD(null, "contentLength = 0");
-            return STATUS_CONTENT_LENGTH_0;
-         } else if (contentLength == downloadLength) {
-            LogHelper.logD(null, "文件已存在-->" + filename);
+         //long contentLength = getContentLength(downloadUrl);
+         //if (contentLength == 0) {
+         //   LogHelper.logD(null, "contentLength = 0");
+         //
+         //   return STATUS_CONTENT_LENGTH_0;
+         //} else
+         if (file.exists() && DBHelper.haveDownloaded(downloadUrl)) {
+            LogHelper.logD(null, "文件已下载-db-->" + filename);
             return STATUS_SUCCESS;
          }
 
@@ -137,7 +140,7 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
                  .build();
          Response response = client.newCall(request).execute();
          ResponseBody body = response.body();
-         if (body != null) {
+         if (body != null && body.contentLength() != 0) {
             inputStream = body.byteStream();
             saveFile = new RandomAccessFile(file, "rw");
             saveFile.seek(downloadLength);//
@@ -155,6 +158,8 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
             }
             body.close();
             return STATUS_SUCCESS;
+         } else {
+            return STATUS_CONTENT_LENGTH_0;
          }
 
 

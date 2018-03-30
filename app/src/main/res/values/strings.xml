@@ -116,11 +116,6 @@
     <string name="cancel_alarm">定时已取消</string>
     <string name="update_setting">设置已更新</string>
     <string name="atleast_one_rr">至少一种分辨率</string>
-    <string name="help">·下载全部图片时，已下载的不会再下载  \n
-        正常返回退出，定时可正常工作；
-
-
-    </string>
     <string name="select_refresh_interval">选定刷新间隔</string>
     <string name="time_format_error">不要逗啦/./</string>
     <string-array name="entries_resolution_ratio_wallpaper">
@@ -145,6 +140,7 @@
         <item>90%</item>
         <item>100%</item>
     </string-array>
+
 
 
 </resources>

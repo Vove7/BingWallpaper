@@ -102,17 +102,18 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
       //设置下载按钮状态
       setButtonStatus(pos);
 
-      Intent intentService = new Intent(this, DownloadService.class);
+      intentService = new Intent(this, DownloadService.class);
       bindService(intentService, downloadConnection, BIND_AUTO_CREATE);
       startService(intentService);
    }
 
+   Intent intentService;
    @Override
    protected void onStop() {
       LogHelper.logD("ViewActivity unbindService");
 
-//      unbindService(downloadConnection);
-      stopService(new Intent(this, DownloadService.class));
+      unbindService(downloadConnection);
+      stopService(intentService);
       super.onStop();
    }
 

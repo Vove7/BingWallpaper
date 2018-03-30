@@ -1,6 +1,5 @@
 package cn.vove7.bingwallpaper.utils;
 
-import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
@@ -11,9 +10,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
@@ -46,7 +43,8 @@ public class Utils {
       LogHelper.logD(null, String.valueOf(i + 2 * j));
       return i + 2 * j;
    }
-   public static void openMarket(Context context,String pkgName) {
+
+   public static void openMarket(Context context, String pkgName) {
       String str = "market://details?id=" + pkgName;
       Intent localIntent = new Intent("android.intent.action.VIEW");
       localIntent.setData(Uri.parse(str));

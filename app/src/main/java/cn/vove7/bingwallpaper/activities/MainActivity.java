@@ -3,6 +3,7 @@ package cn.vove7.bingwallpaper.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -20,10 +21,12 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -201,17 +204,24 @@ public class MainActivity extends BaseThemeActivity
          break;
          case R.id.nav_about: {
 
-            Utils.openMarket(this, getPackageName());
-            //AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-            //View view = LayoutInflater.from(this).inflate(R.layout.layout_about, null);
-            //view.findViewById(R.id.check_upgrade).setOnClickListener(v -> {
-            //           Utils.openMarket(this, getPackageName());
-            //           dialog.dismiss();
-            //        }
-            //);
-            //
-            //dialogBuilder.setView(view);
-            //dialog = dialogBuilder.show();
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            View view = LayoutInflater.from(this).inflate(R.layout.layout_about, null);
+            view.findViewById(R.id.check_upgrade).setOnClickListener(v -> {
+                       Utils.openMarket(this, getPackageName());
+                       dialog.dismiss();
+                    }
+            );
+            ((WebView) view.findViewById(R.id.webView)).loadUrl("file:///android_asset/about.html");
+            view.findViewById(R.id.github).setOnClickListener(v -> {
+               Intent intent = new Intent(Intent.ACTION_VIEW);
+               intent.setData(Uri.parse("https://github.com/Vove7/BingWallpaper"));
+               startActivity(intent);
+               dialog.dismiss();
+            });
+
+
+            dialogBuilder.setView(view);
+            dialog = dialogBuilder.show();
 
          }
          break;
@@ -220,7 +230,7 @@ public class MainActivity extends BaseThemeActivity
       return true;
    }
 
-   //Dialog dialog;
+   Dialog dialog;
 
 
    @SuppressLint("StaticFieldLeak")

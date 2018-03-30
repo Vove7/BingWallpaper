@@ -3,6 +3,8 @@ package cn.vove7.bingwallpaper.utils;
 import android.app.Application;
 import android.os.StrictMode;
 
+import org.litepal.LitePal;
+
 import cn.vove7.bingwallpaper.activities.AlarmActivity;
 import cn.vove7.bingwallpaper.activities.MainActivity;
 import cn.vove7.bingwallpaper.activities.SettingsActivity;
@@ -97,6 +99,8 @@ public class MyApplication extends Application {
       super.onCreate();
       application = this;
       EasyTheme.init(this, ThemeSet.ThemeMode.Light, ThemeSet.Theme.DeepOrange);
+      LitePal.initialize(this);
+
       // android 7.0系统解决uri外部
       StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
       StrictMode.setVmPolicy(builder.build());

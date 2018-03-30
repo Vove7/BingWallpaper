@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="dl_his"/>
+    <version value="1"/>
+    <list>
+        <mapping class="cn.vove7.bingwallpaper.model.DlHis"/>
+    </list>
+</litepal>
+

@@ -7,7 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import cn.vove7.bingwallpaper.utils.DBHelper;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -20,7 +20,14 @@ public class ExampleInstrumentedTest {
    public void useAppContext() throws Exception {
       // Context of the app under test.
       Context appContext = InstrumentationRegistry.getTargetContext();
+      String url = "1";
+      DBHelper.setDownloadOk(url);
+      boolean isOk = DBHelper.haveDownloaded(url);
+      System.out.println(" isOK " + isOk);
 
-      assertEquals("cn.vove7.bingwallpaper", appContext.getPackageName());
+      isOk=DBHelper.haveDownloaded("2");
+
+      System.out.println(" isOK " + isOk);
+
    }
 }

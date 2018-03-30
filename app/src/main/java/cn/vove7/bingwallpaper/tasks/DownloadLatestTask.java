@@ -7,15 +7,14 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
-import cn.vove7.bingwallpaper.activities.AlarmActivity;
 import cn.vove7.bingwallpaper.services.DownloadService;
+import cn.vove7.bingwallpaper.utils.CallBack;
+import cn.vove7.bingwallpaper.utils.DBHelper;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-
-import static cn.vove7.bingwallpaper.utils.Utils.getContentLength;
 
 /**
  * Created by Vove on 2017/11/23.
@@ -27,12 +26,12 @@ public class DownloadLatestTask extends AsyncTask<Object, Void, Integer> {
    public static final int SUCCESSFUL = 1;
    public static final int Failed = 0;
    public static final int CONTENT_LENGTH_0 = 2;
+   CallBack callback;
 
    @SuppressLint("StaticFieldLeak")
-   private AlarmActivity alarmActivity;
 
-   public DownloadLatestTask(AlarmActivity alarmActivity) {
-      this.alarmActivity = alarmActivity;
+   public DownloadLatestTask(CallBack callback) {
+      this.callback = callback;
    }
 
    @Override
@@ -57,12 +56,8 @@ public class DownloadLatestTask extends AsyncTask<Object, Void, Integer> {
          if (file.exists()) {//续点
             downloadLength = file.length();
          }
-         long contentLength = getContentLength(downloadUrl);
-         if (contentLength == 0) {
-            LogHelper.logD(null, "contentLength = 0");
-            return CONTENT_LENGTH_0;
-         } else if (contentLength == downloadLength) {
-            LogHelper.logD(null, "文件已存在-->" + filename);
+         if (file.exists() && DBHelper.haveDownloaded(downloadUrl)) {
+            LogHelper.logD(null, "文件已下载-db-->" + filename);
             return SUCCESSFUL;
          }
 
@@ -73,7 +68,7 @@ public class DownloadLatestTask extends AsyncTask<Object, Void, Integer> {
                  .build();
          Response response = client.newCall(request).execute();
          ResponseBody body = response.body();
-         if (body != null) {
+         if (body != null && body.contentLength() != 0) {
             inputStream = body.byteStream();
             saveFile = new RandomAccessFile(file, "rw");
             saveFile.seek(downloadLength);//
@@ -85,6 +80,8 @@ public class DownloadLatestTask extends AsyncTask<Object, Void, Integer> {
             }
             body.close();
             return SUCCESSFUL;
+         } else {
+            return CONTENT_LENGTH_0;
          }
 
       } catch (Exception e) {
@@ -104,6 +101,6 @@ public class DownloadLatestTask extends AsyncTask<Object, Void, Integer> {
 
    @Override
    protected void onPostExecute(Integer result) {//结束
-      alarmActivity.continueGetImg(result);
+      callback.onBack(result);
    }
 }

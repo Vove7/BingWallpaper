@@ -19,6 +19,7 @@ import cn.vove7.bingwallpaper.tasks.DownloadLatestTask;
 import cn.vove7.bingwallpaper.utils.AlarmHelper;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.BingImages;
+import cn.vove7.bingwallpaper.utils.CallBack;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 import cn.vove7.bingwallpaper.utils.MyApplication;
 import cn.vove7.bingwallpaper.utils.SettingHelper;
@@ -35,7 +36,7 @@ import static cn.vove7.bingwallpaper.services.DownloadService.POSTFIX_1200;
 import static cn.vove7.bingwallpaper.services.DownloadService.PREFIX_1200;
 
 //无界面 launchMode=singleInstance
-public class AlarmActivity extends Activity {
+public class AlarmActivity extends Activity implements CallBack{
 
    public static final String ACTION_ALARM_SET_WALLPAPER = "cn.vove7.bingwallpaper.SET_WALLPAPER";
    public static final String ACTION_ALARM_AUTO_UPDATE = "cn.vove7.bingwallpaper.AUTO_UPDATE";
@@ -205,7 +206,8 @@ public class AlarmActivity extends Activity {
       });
    }
 
-   public void continueGetImg(int status) {
+   @Override
+   public void onBack(int status) {
       switch (status) {
          case DownloadLatestTask.SUCCESSFUL: {
             Utils.setWallpaper(this, BitmapFactory.

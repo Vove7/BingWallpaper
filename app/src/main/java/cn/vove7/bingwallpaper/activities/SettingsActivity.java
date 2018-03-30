@@ -23,7 +23,7 @@ import static cn.vove7.bingwallpaper.utils.SettingHelper.disEnabledAlarmPreferen
 import static cn.vove7.bingwallpaper.utils.SettingHelper.keys;
 import static cn.vove7.bingwallpaper.utils.SettingHelper.modeMap;
 
-public class SettingsActivity extends AppCompatPreferenceActivity
+public class SettingsActivity extends BasePreferenceActivity
         implements Preference.OnPreferenceChangeListener {
 
    @Override

@@ -147,6 +147,7 @@ public class SettingHelper {
 
    public static void initSettingView(SettingsActivity settingsActivity) {
 
+      initPreference();
       boolean b = preferences.getBoolean(keys[1], false);
       LogHelper.logD(null, keys[1] + "--" + b);
       for (int i = 2; i < 5; i++) {
