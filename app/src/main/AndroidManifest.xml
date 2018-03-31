@@ -33,8 +33,7 @@
         <activity
             android:name=".activities.ViewImageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/Fullscreen"
-            android:launchMode="singleTop"/>
+            android:theme="@style/Fullscreen"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
