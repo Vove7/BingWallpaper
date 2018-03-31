@@ -51,14 +51,14 @@ public class AlarmHelper {
          startTime += 30000;
       }
 
-      LogHelper.logD("startAlarm--" + action);
-      LogHelper.logD("starttime--" + new Date(startTime));
-      LogHelper.logD("interval--" + interval);
+      LogHelper.d("startAlarm--" + action);
+      LogHelper.d("starttime--" + new Date(startTime));
+      LogHelper.d("interval--" + interval);
       manager.setRepeating(AlarmManager.RTC_WAKEUP, startTime, interval, pendingIntent);
    }
 
    public void cancelAlarm(String action, int requestCode) {
-      LogHelper.logD("cancelAlarm--" + action);
+      LogHelper.d("cancelAlarm--" + action);
       SettingHelper.setTotalSwitch(false);
       Intent intent = new Intent(action);
       PendingIntent pendingIntent = PendingIntent

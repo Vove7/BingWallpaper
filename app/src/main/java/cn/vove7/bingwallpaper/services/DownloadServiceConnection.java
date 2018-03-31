@@ -21,18 +21,18 @@ public class DownloadServiceConnection implements ServiceConnection {
    @Override
    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
       downloadBinder = (DownloadService.DownloadBinder) iBinder;
-      LogHelper.logD("serCon->", "onServiceConnected*******");
+      LogHelper.d("serCon->", "onServiceConnected*******");
    }
 
    @Override
    public void onBindingDied(ComponentName name) {
-      LogHelper.logD("serCon->", "onDied*******");
+      LogHelper.d("serCon->", "onDied*******");
       downloadBinder = null;
    }
 
    @Override
    public void onServiceDisconnected(ComponentName componentName) {
-      LogHelper.logD("serCon->", "onServiceDisconnected*******");
+      LogHelper.d("serCon->", "onServiceDisconnected*******");
       downloadBinder = null;
    }
 }

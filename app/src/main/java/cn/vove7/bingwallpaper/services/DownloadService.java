@@ -49,7 +49,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
       }
 
       public void startDownload(ArrayList<BingImage> urlArray, boolean isRefreshBtn, int resolutionRatio) {
-         LogHelper.logD(null, "开始下载");
+         LogHelper.d(null, "开始下载");
          if (downloadTaskArray == null) {//
             failedNum = 0;
             DownloadService.this.isRefreshBtn = isRefreshBtn;
@@ -67,14 +67,14 @@ public class DownloadService extends Service {//多任务下载，可管理任�
                           image.getUrlBase() + "_1920x1080.jpg",
                           image.getStartDate() + ".jpg"
                   );
-                  LogHelper.logD(null, image.getUrlBase() + "_1920x1080.jpg");
+                  LogHelper.d(null, image.getUrlBase() + "_1920x1080.jpg");
 
                } else {//1920x1200
                   downloadTask = new DownloadTask(
                           PREFIX_1200 + image.getHsh(),
                           image.getStartDate() + POSTFIX_1200
                   );
-                  LogHelper.logD(null, PREFIX_1200 + image.getHsh());
+                  LogHelper.d(null, PREFIX_1200 + image.getHsh());
                }
                downloadTaskArray.add(downloadTask);
                downloadTask.execute();//执行
@@ -192,7 +192,7 @@ public class DownloadService extends Service {//多任务下载，可管理任�
          downloadTaskArray = null;
          if (isRefreshBtn)//刷新浏览activity按钮
             MyApplication.getApplication().getViewImageActivity().setButtonStatus(-1);
-         LogHelper.logD("service->", "stop 下载完成");
+         LogHelper.d("service->", "stop 下载完成");
 
       }
 

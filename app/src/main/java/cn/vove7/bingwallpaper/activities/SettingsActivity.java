@@ -74,7 +74,7 @@ public class SettingsActivity extends BasePreferenceActivity
       findPreference(keys[2]).setOnPreferenceClickListener((preference) -> {
 
          if (preference.getKey().equals(keys[2])) {
-            LogHelper.logD("设置间隔");
+            LogHelper.d("设置间隔");
 
          }
          return false;
@@ -90,8 +90,8 @@ public class SettingsActivity extends BasePreferenceActivity
    public boolean onPreferenceChange(Preference preference, Object o) {
       String key = preference.getKey();
 
-      LogHelper.logD("key", key);
-      LogHelper.logD("value", o.toString());
+      LogHelper.d("key", key);
+      LogHelper.d("value", o.toString());
       if (key.equals(keys[0])) {//图片质量
          double quality = Double.parseDouble(o.toString()) / 100;
          MyApplication.getApplication().setQualityOfImage(quality);

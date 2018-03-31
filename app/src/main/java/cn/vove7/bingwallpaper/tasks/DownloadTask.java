@@ -124,12 +124,12 @@ public class DownloadTask extends AsyncTask<Object, Integer, Integer> {
          }
          //long contentLength = getContentLength(downloadUrl);
          //if (contentLength == 0) {
-         //   LogHelper.logD(null, "contentLength = 0");
+         //   LogHelper.d(null, "contentLength = 0");
          //
          //   return STATUS_CONTENT_LENGTH_0;
          //} else
          if (file.exists() && DBHelper.haveDownloaded(downloadUrl)) {
-            LogHelper.logD(null, "文件已下载-db-->" + filename);
+            LogHelper.d(null, "文件已下载-db-->" + filename);
             return STATUS_SUCCESS;
          }
 

@@ -65,7 +65,7 @@ public class TimePickerPreference extends DialogPreference {
             //OK
             String intervalStr = timePicker.getCurrentHour() + ":" +
                     timePicker.getCurrentMinute();
-            LogHelper.logD(intervalStr);
+            LogHelper.d(intervalStr);
             long interval = Utils.interval2Mills(intervalStr);
             if (interval < 0) {
                MyApplication.getApplication().getSettingsActivity().showSnack(R.string.time_format_error);
@@ -77,7 +77,7 @@ public class TimePickerPreference extends DialogPreference {
                MyApplication.getApplication().getSettingsActivity().showSnack(R.string.update_setting);
                this.setSummary(intervalStr);
             }
-            LogHelper.logD("点击OK");
+            LogHelper.d("点击OK");
             //dialog.dismiss();//关闭,不再触发onPreferenceChange
 
             break;

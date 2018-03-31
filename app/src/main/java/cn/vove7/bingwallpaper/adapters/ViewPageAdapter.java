@@ -27,6 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import cn.vove7.bingwallpaper.R;
+import cn.vove7.bingwallpaper.activities.ViewImageActivity;
 import cn.vove7.bingwallpaper.utils.BingImage;
 import cn.vove7.bingwallpaper.utils.LogHelper;
 
@@ -76,12 +77,12 @@ public class ViewPageAdapter extends PagerAdapter {
       final PhotoView imageView = view.findViewById(R.id.view_image);
       imageView.setMaxScale(3.0f);
       imageView.enable();
-
+      view.setTag(position);
       progressBar = view.findViewById(R.id.view_progressbar);
 
       switch (imageFrom) {
          case IMAGE_FROM_LOCAL: {
-            LogHelper.logD(null, "from local***");
+            LogHelper.d(null, "from local***");
             File file = new File(getPath(position));//充当path
             Bitmap bitmap = BitmapFactory.decodeFile(getPath(position));
             glideToView(container, imageView, bitmap, null);
@@ -89,15 +90,15 @@ public class ViewPageAdapter extends PagerAdapter {
          break;
          case IMAGE_FROM_INTERNET: {
             String filename = getPath(position) + ".jpg";
-            LogHelper.logD(null, "filename->" + filename);
+            LogHelper.d(null, "filename->" + filename);
             if (isFileExist(filename)) {
-               LogHelper.logD(null, "internet from local***");
+               LogHelper.d(null, "internet from local***");
 
                Bitmap bitmap = BitmapFactory.decodeFile(filename);
                glideToView(container, imageView, bitmap, null);
 
             } else {
-               LogHelper.logD(null, "from internet***");
+               LogHelper.d(null, "from internet***");
 
                glideToView(container, imageView, null, bingImages.get(position).getUrlBase() + "_1920x1080.jpg");
             }
@@ -109,6 +110,18 @@ public class ViewPageAdapter extends PagerAdapter {
       container.addView(view);
       return view;
 
+   }
+
+   //自定义更新ViewPagerItem
+   @Override
+   public int getItemPosition(@NonNull Object object) {
+      View view = (View) object;
+      int currentPage = ((ViewImageActivity)context).getNextIndex(); // Get current page index
+      if(currentPage == (Integer)view.getTag()){
+         return POSITION_NONE;
+      }else{
+         return POSITION_UNCHANGED;
+      }
    }
 
    private String getPath(int position) {

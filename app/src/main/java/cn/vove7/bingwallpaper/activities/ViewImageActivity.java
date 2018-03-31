@@ -13,6 +13,7 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
@@ -44,7 +45,7 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    private ImageButton downloadBtn;
    //   private ImageButton shareBtn;
    private ImageButton deleteBtn;
-   private ImageButton moreBtn;
+   private ImageButton shareBtn, paintBtn;
 
    private DownloadServiceConnection downloadConnection = new DownloadServiceConnection();
 
@@ -71,10 +72,12 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
 //      shareBtn.setOnClickListener(this);
       deleteBtn = findViewById(R.id.view_delete);
       deleteBtn.setOnClickListener(this);
-      moreBtn = findViewById(R.id.view_more);
-      registerForContextMenu(moreBtn);//注册长按menu
+      paintBtn = findViewById(R.id.btn_set_wallpaper);
+      shareBtn = findViewById(R.id.btn_share);
+      //registerForContextMenu(moreBtn);//注册长按menu
       registerForContextMenu(downloadBtn);//注册下载
-      moreBtn.setOnClickListener(this);
+      paintBtn.setOnClickListener(this);
+      shareBtn.setOnClickListener(this);
 
       findViewById(R.id.view_back).setOnClickListener(this);
 
@@ -116,7 +119,7 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    protected void onPause() {
 
       if (isConnected && downloadConnection != null) {
-         LogHelper.logD("ViewActivity unbindService");
+         LogHelper.d("ViewActivity unbindService");
          unbindService(downloadConnection);
          isConnected = false;
          stopService(intentService);
@@ -128,10 +131,10 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
       super.onCreateContextMenu(menu, v, menuInfo);
       switch (v.getId()) {
-         case R.id.view_more: {
-            getMenuInflater().inflate(R.menu.view_more_menu, menu);
-         }
-         break;
+         //case R.id.view_more: {
+         //   getMenuInflater().inflate(R.menu.view_more_menu, menu);
+         //}
+         //break;
          case R.id.view_download: {
             getMenuInflater().inflate(R.menu.view_download_menu, menu);
 
@@ -149,26 +152,6 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    @Override
    public boolean onContextItemSelected(MenuItem item) {
       switch (item.getItemId()) {
-         case R.id.view_share: {
-            final int pos = viewPager.getCurrentItem();
-            File imgFile = new File(getPath(pos));
-            if (imgFile.exists()) {//本地存在
-               Utils.shareImageTo(imgFile);
-            } else {
-               Toast.makeText(this, R.string.please_download, Toast.LENGTH_SHORT).show();
-            }
-         }
-         break;
-         case R.id.view_set_wallpaper: {
-            final int pos = viewPager.getCurrentItem();
-            if (!new File(getPath(pos)).exists()) {
-               Toast.makeText(this, R.string.please_download, Toast.LENGTH_SHORT).show();
-               return false;
-            }
-            //Utils.setWallpaper(this,BitmapFactory.decodeFile(getPath(pos)));
-            setWallpaperWithChoose(pos);
-         }
-         break;
          case R.id.view_download_1080: {
             downloadImage(RESOLUTION_RATIO_1080);
          }
@@ -203,7 +186,6 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
       } else {
          Toast.makeText(this, R.string.file_already_exist, Toast.LENGTH_SHORT).show();
       }
-
    }
 
    @Override
@@ -213,7 +195,6 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
          }
          break;
       }
-
    }
 
    private void addToArray(String[] imageUrls, String[] startdates, String[] hshs) {
@@ -228,7 +209,7 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
    public void setButtonStatus(int position) {
       if (position == -1)
          position = viewPager.getCurrentItem();
-      LogHelper.logD(null, "position---->" + position);
+      LogHelper.d(null, "position---->" + position);
       if (imageFrom == IMAGE_FROM_LOCAL) {
          deleteBtn.setVisibility(View.VISIBLE);
          downloadBtn.setVisibility(View.GONE);
@@ -247,6 +228,18 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
       }
    }
 
+
+   public int getNextIndex() {
+      int pos=viewPager.getCurrentItem();
+      int nextIndex;
+      if (pos == bingImages.size() - 1) {
+         nextIndex = pos - 1;
+      } else {
+         nextIndex = pos;
+      }
+      return nextIndex;
+
+   }
    @Override
    public void onClick(View view) {
       final int pos = viewPager.getCurrentItem();
@@ -267,12 +260,18 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
                if (file.exists()) {
                   if (file.delete()) {
                      Toast.makeText(ViewImageActivity.this, R.string.delete_successful, Toast.LENGTH_SHORT).show();
-                     if (imageFrom == IMAGE_FROM_LOCAL) {
-                        MyApplication.getApplication().getGalleryFragment().refreshView();
-                     } else {
+                     int nextIndex=getNextIndex();
+
+                     bingImages.remove(pos);
+                     viewPager.setCurrentItem(nextIndex);
+                     viewPageAdapter.notifyDataSetChanged();
+                     if (imageFrom != IMAGE_FROM_LOCAL) {
                         setButtonStatus(pos);
                      }
-                     onBackPressed();//返回
+                     Intent intent = getIntent();
+                     intent.putExtra("pos", nextIndex);
+                     setResult(0, intent);
+                     //onBackPressed();//返回
                   }
                }
             });
@@ -280,8 +279,22 @@ public class ViewImageActivity extends AppCompatActivity implements View.OnClick
             builder.show();
          }
          break;
-         case R.id.view_more: {//单击打开菜单
-            openContextMenu(moreBtn);
+         case R.id.btn_share: {
+            File imgFile = new File(getPath(pos));
+            if (imgFile.exists()) {//本地存在
+               Utils.shareImageTo(imgFile);
+            } else {
+               Toast.makeText(this, R.string.please_download, Toast.LENGTH_SHORT).show();
+            }
+         }
+         break;
+         case R.id.btn_set_wallpaper: {
+            if (!new File(getPath(pos)).exists()) {
+               Toast.makeText(this, R.string.please_download, Toast.LENGTH_SHORT).show();
+               return;
+            }
+            //Utils.setWallpaper(this,BitmapFactory.decodeFile(getPath(pos)));
+            setWallpaperWithChoose(pos);
          }
          break;
       }

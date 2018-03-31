@@ -29,80 +29,123 @@
             android:baselineAligned="false"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@color/transparent">
+            <!--<LinearLayout-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@color/transparent">-->
 
-                <ImageButton
-                    android:id="@+id/view_back"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_margin="20dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/text_back"
-                    android:src="@drawable/ic_arrow_back_white_24dp"
-                    android:theme="@style/RippleWhite" />
-            </LinearLayout>
+            <ImageButton
+                android:id="@+id/view_back"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="20dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/text_back"
+                android:src="@drawable/ic_arrow_back_white_24dp"
+                android:theme="@style/RippleWhite" />
+            <!--</LinearLayout>-->
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@color/transparent"
-                android:gravity="center">
+            <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@color/transparent"-->
+            <!--android:gravity="center">-->
 
-                <!--<ImageButton-->
-                <!--android:id="@+id/view_share"-->
-                <!--android:layout_width="50dp"-->
-                <!--android:layout_height="50dp"-->
-                <!--android:layout_gravity="center_vertical"-->
-                <!--android:background="?android:attr/selectableItemBackgroundBorderless"-->
-                <!--android:contentDescription="@string/text_share"-->
-                <!--android:src="@drawable/ic_share_white_24dp"-->
-                <!--android:theme="@style/RippleWhite" />-->
-                <ImageButton
-                    android:id="@+id/view_more"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="20dp"
-                    android:layout_gravity="center_vertical"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/text_more"
-                    android:src="@drawable/ic_more_vert_white_24dp"
-                    android:theme="@style/RippleWhite" />
-            </LinearLayout>
+            <!--<ImageButton-->
+            <!--android:id="@+id/view_share"-->
+            <!--android:layout_width="50dp"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:background="?android:attr/selectableItemBackgroundBorderless"-->
+            <!--android:contentDescription="@string/text_share"-->
+            <!--android:src="@drawable/ic_share_white_24dp"-->
+            <!--android:theme="@style/RippleWhite" />-->
+            <!--<ImageButton-->
+            <!--android:id="@+id/view_more"-->
+            <!--android:layout_width="50dp"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:layout_margin="20dp"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:background="?android:attr/selectableItemBackgroundBorderless"-->
+            <!--android:contentDescription="@string/text_more"-->
+            <!--android:src="@drawable/ic_more_vert_white_24dp"-->
+            <!--android:theme="@style/RippleWhite" />-->
+            <!--</LinearLayout>-->
         </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:gravity="center|bottom"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:gravity="center|bottom">
 
-            <ImageButton
-                android:id="@+id/view_download"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom"
-                android:layout_margin="20dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/text_download"
-                android:src="@drawable/ic_file_download_white_24dp"
-                android:theme="@style/RippleWhite" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
 
-            <ImageButton
-                android:id="@+id/view_delete"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom"
-                android:layout_margin="20dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/text_delete"
-                android:src="@drawable/ic_delete_white_24dp"
-                android:theme="@style/RippleWhite" />
+                <ImageButton
+                    android:id="@+id/view_download"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="20dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/text_download"
+                    android:src="@drawable/ic_file_download_white_24dp"
+                    android:theme="@style/RippleWhite" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/view_delete"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="20dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/text_delete"
+                    android:src="@drawable/ic_delete_white_24dp"
+                    android:theme="@style/RippleWhite" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start">
+
+                <ImageButton
+                    android:id="@+id/btn_share"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="20dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/text_share"
+                    android:src="@drawable/ic_share_white_24dp"
+                    android:theme="@style/RippleWhite" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end">
+
+                <ImageButton
+                    android:id="@+id/btn_set_wallpaper"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="20dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/text_share"
+                    android:src="@drawable/ic_format_paint_black_24dp"
+                    android:theme="@style/RippleWhite" />
+            </LinearLayout>
 
         </RelativeLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

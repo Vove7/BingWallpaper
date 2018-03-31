@@ -83,7 +83,7 @@ public class MainFragment extends Fragment {
                             Bundle savedInstanceState) {
       nowPage = 0;
       contentView = inflater.inflate(R.layout.fragment_main, container, false);
-      LogHelper.logD(null, "mainFragment onCreateView");
+      LogHelper.d(null, "mainFragment onCreateView");
       initComponent();
       initMainView();
 
@@ -93,18 +93,18 @@ public class MainFragment extends Fragment {
    @Override
    public void onDestroyView() {
       bingImages.clear();
-      LogHelper.logD(null, "mainFragment onDestroyView");
+      LogHelper.d(null, "mainFragment onDestroyView");
       super.onDestroyView();
    }
 
    @Override
    public void onDestroy() {
-      LogHelper.logD("mainFragment destroy");
+      LogHelper.d("mainFragment destroy");
       bingImages.clear();
       recyclerAdapter.notifyDataSetChanged();
       recyclerAdapter = null;
       getActivity().unbindService(downloadConnection);
-      LogHelper.logD("mainFragment unbindService");
+      LogHelper.d("mainFragment unbindService");
       Intent intentService = new Intent(this.getContext(), DownloadService.class);
       getActivity().stopService(intentService);
       super.onDestroy();
@@ -115,14 +115,14 @@ public class MainFragment extends Fragment {
 
    public void addNowPage() {
       nowPage++;
-      LogHelper.logD(null, "nowPage=" + nowPage);
+      LogHelper.d(null, "nowPage=" + nowPage);
    }
 
    public void clearImages() {
       if (bingImages != null) {
          bingImages.clear();
          nowPage = 0;
-         LogHelper.logD(null, "nowPage=0");
+         LogHelper.d(null, "nowPage=0");
       }
    }
 
@@ -233,10 +233,10 @@ public class MainFragment extends Fragment {
       swipeRefreshLayout.setOnRefreshListener(() -> {//下拉刷新
          if (haveImages()) {//有图
             getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);
-            LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);");
+            LogHelper.d(null, "getBingImages(ACTION_REFRESH_GET_WITH_IMAGE);");
          } else {
             getBingImages(ACTION_REFRESH_GET);
-            LogHelper.logD(null, "getBingImages(ACTION_REFRESH_GET);");
+            LogHelper.d(null, "getBingImages(ACTION_REFRESH_GET);");
          }
 //            refreshImage();
       });

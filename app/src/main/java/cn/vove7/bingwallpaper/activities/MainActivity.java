@@ -117,7 +117,7 @@ public class MainActivity extends BaseThemeActivity
 
    @Override
    protected void onStop() {
-      LogHelper.logD("MainActivity onStop");
+      LogHelper.d("MainActivity onStop");
       super.onStop();
    }
 

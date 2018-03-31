@@ -139,7 +139,7 @@ public class InternetMessageHandler extends Handler {
       }
 
       if (images != null) {
-//         LogHelper.logD(null,images.toString());
+//         LogHelper.d(null,images.toString());
          mainFragment.addBingImages(images.getImages());
          return true;
       }

@@ -57,7 +57,7 @@ public class DownloadLatestTask extends AsyncTask<Object, Void, Integer> {
             downloadLength = file.length();
          }
          if (file.exists() && DBHelper.haveDownloaded(downloadUrl)) {
-            LogHelper.logD(null, "文件已下载-db-->" + filename);
+            LogHelper.d(null, "文件已下载-db-->" + filename);
             return SUCCESSFUL;
          }
 

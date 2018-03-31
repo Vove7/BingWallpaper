@@ -46,7 +46,7 @@ public class AlarmActivity extends Activity implements CallBack{
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       String action = getIntent().getAction();
-      LogHelper.logD(action);
+      LogHelper.d(action);
       MyApplication.getApplication().setAlarmActivity(this);
 
       if (ACTION_ALARM_SET_WALLPAPER.equals(action)) {
@@ -54,30 +54,30 @@ public class AlarmActivity extends Activity implements CallBack{
       } else if (ACTION_ALARM_AUTO_UPDATE.equals(action)) {//00:00启动
 
          if (!SettingHelper.getOnlyWifi()) {
-            LogHelper.logD("downloading on canWifi");
+            LogHelper.d("downloading on canWifi");
             getLatestImg();
          } else {
             if (Utils.isWifi(this)) {//是否wifi下
-               LogHelper.logD("download on wifi");
+               LogHelper.d("download on wifi");
                getLatestImg();
             } else {
-               LogHelper.logD("on data no download");
+               LogHelper.d("on data no download");
             }
          }
       }
       finish();
-      LogHelper.logD("Alarm finish");
+      LogHelper.d("Alarm finish");
    }
 
    private void chooseWallpaper() {
       ArrayList<String> images = filterFile();//筛选图片
       if (images == null) {//无图片
-         LogHelper.logD("无筛选到图片");
+         LogHelper.d("无筛选到图片");
          new AlarmHelper(this).cancelAlarm(ACTION_ALARM_SET_WALLPAPER, AlarmHelper.REQUEST_CODE_ALARM_SET_WALLPAPER);
          return;
       }
       String order = SettingHelper.getOrderMode(this);//随机、顺序
-      LogHelper.logD("播放方式", order);
+      LogHelper.d("播放方式", order);
 
       if (images.size() == 0) {
          Log.d(this.getClass().getName(), "chooseWallpaper: 列表空");
@@ -88,7 +88,7 @@ public class AlarmActivity extends Activity implements CallBack{
               getNextWithOrder(images) :
               getNextWithRandom(images);
 
-      LogHelper.logD("chooseWallpaper", nextImage);
+      LogHelper.d("chooseWallpaper", nextImage);
       SettingHelper.setNowWallpaper(nextImage);
 
       Utils.setWallpaper(this, BitmapFactory.decodeFile(IMAGE_DIRECTORY + nextImage));
@@ -97,13 +97,13 @@ public class AlarmActivity extends Activity implements CallBack{
 
    private String getNextWithOrder(ArrayList<String> images) {
       String nowWallpaper = SettingHelper.getNowWallpaper();//上一张
-      LogHelper.logD("lastWallpaper", nowWallpaper);
+      LogHelper.d("lastWallpaper", nowWallpaper);
       if (nowWallpaper == null) {//初始
          return images.get(0);
       } else {
          int nextIndex = images.indexOf(nowWallpaper);//获取当前序号
          nextIndex = nextIndex == images.size() - 1 ? 0 : nextIndex + 1;
-         LogHelper.logD("nextIndex", nextIndex);
+         LogHelper.d("nextIndex", nextIndex);
          return images.get(nextIndex);
       }
    }
@@ -112,7 +112,7 @@ public class AlarmActivity extends Activity implements CallBack{
       if(images.size()==1)
          return images.get(0);
       String nowWallpaper = SettingHelper.getNowWallpaper();//上一张
-      LogHelper.logD("lastWallpaper", nowWallpaper);
+      LogHelper.d("lastWallpaper", nowWallpaper);
       String next;
       do {//选取下一张
          int i = (int) (Math.random() * images.size());
@@ -125,7 +125,7 @@ public class AlarmActivity extends Activity implements CallBack{
       File dir = new File(IMAGE_DIRECTORY);
       ArrayList<String> files = new ArrayList<>(Arrays.asList(dir.list()));
       if (files.size() == 0) {
-         LogHelper.logD("无图片资源");
+         LogHelper.d("无图片资源");
          return null;
       }
 
@@ -161,7 +161,7 @@ public class AlarmActivity extends Activity implements CallBack{
       }
       Collections.sort(images);
       Collections.sort(images, Collections.reverseOrder());
-      LogHelper.logD(images);
+      LogHelper.d(images);
       return images;
    }
 
@@ -170,11 +170,11 @@ public class AlarmActivity extends Activity implements CallBack{
    private static String latestName;
 
    private void downloadLatest(String url) {
-      LogHelper.logD("begin download latest");
+      LogHelper.d("begin download latest");
       DownloadLatestTask downloadTask = new DownloadLatestTask(this);
 
-      LogHelper.logD(url);
-      LogHelper.logD(latestName);
+      LogHelper.d(url);
+      LogHelper.d(latestName);
       downloadTask.execute(url, latestName);
    }
 
@@ -186,7 +186,7 @@ public class AlarmActivity extends Activity implements CallBack{
       call.enqueue(new Callback() {
          @Override
          public void onFailure(@NonNull Call call, @NonNull IOException e) {
-            LogHelper.logD("getLatestImg Failed--网络错误");
+            LogHelper.d("getLatestImg Failed--网络错误");
          }
 
          @Override
@@ -200,7 +200,7 @@ public class AlarmActivity extends Activity implements CallBack{
                latestName = latestImg.getStartDate() + POSTFIX_1200;
                downloadLatest(url);
             } else {
-               LogHelper.logD("body==null");
+               LogHelper.d("body==null");
             }
          }
       });
@@ -216,14 +216,14 @@ public class AlarmActivity extends Activity implements CallBack{
          }
          break;
          case DownloadLatestTask.CONTENT_LENGTH_0: {//无权下载，下载1080
-            LogHelper.logD("无权下载，下载1080");
+            LogHelper.d("无权下载，下载1080");
 
             latestName = latestImg.getStartDate() + ".jpg";
             downloadLatest(latestImg.getUrlBase() + "_1920x1080.jpg");
          }
          break;
          case DownloadLatestTask.Failed:
-            LogHelper.logD("latest download Failed");
+            LogHelper.d("latest download Failed");
       }
    }
 }

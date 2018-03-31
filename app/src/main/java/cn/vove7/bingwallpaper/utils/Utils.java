@@ -40,7 +40,7 @@ public class Utils {
    public static int isLocalHave(String startDate) {
       int i = new File(IMAGE_DIRECTORY + startDate + ".jpg").exists() ? 1 : 0;
       int j = new File(IMAGE_DIRECTORY + startDate + "-1920x1200.png").exists() ? 1 : 0;
-      LogHelper.logD(null, String.valueOf(i + 2 * j));
+      LogHelper.d(null, String.valueOf(i + 2 * j));
       return i + 2 * j;
    }
 
@@ -79,18 +79,18 @@ public class Utils {
             public void run() {
                try {
                   manager.setBitmap(bitmap);
-                  LogHelper.logD("设置成功");
+                  LogHelper.d("设置成功");
 
                } catch (IOException e) {
                   sendSetWallError();
-                  LogHelper.logD("设置失败");
+                  LogHelper.d("设置失败");
                   e.printStackTrace();
                }
             }
          }).start();
       } else {
          sendSetWallError();
-         LogHelper.logD(null, "WallpaperManager == null");
+         LogHelper.d(null, "WallpaperManager == null");
       }
 
    }

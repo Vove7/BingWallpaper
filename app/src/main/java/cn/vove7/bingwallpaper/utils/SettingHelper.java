@@ -69,14 +69,14 @@ public class SettingHelper {
 
       String quality = preferences.getString(keys[0], "80");
       double q = Double.parseDouble(quality) / 100;
-      LogHelper.logD(quality);
+      LogHelper.d(quality);
       MyApplication.getApplication().setQualityOfImage(q);
       boolean alarm_status = preferences.getBoolean(keys[1], false);//定时状态
       long interval = SettingHelper.getInterval();
 
       MainActivity activity = MyApplication.getApplication().getMainActivity();
       if (alarm_status) {//开启定时
-         LogHelper.logD("开启定时");
+         LogHelper.d("开启定时");
          new AlarmHelper(activity).startAlarmForActivityWithInterval(
                  AlarmActivity.ACTION_ALARM_SET_WALLPAPER, interval,
                  AlarmHelper.REQUEST_CODE_ALARM_SET_WALLPAPER
@@ -84,7 +84,7 @@ public class SettingHelper {
       }
       boolean auto_update = preferences.getBoolean(keys[5], false);//自动更新状态
       if (auto_update) {//开启更新
-         LogHelper.logD("开启自动更新");
+         LogHelper.d("开启自动更新");
          new AlarmHelper(activity).startAlarmForActivityWithInterval(
                  AlarmActivity.ACTION_ALARM_AUTO_UPDATE, AlarmManager.INTERVAL_DAY,
                  AlarmHelper.REQUEST_CODE_AUTO_UPDATE);
@@ -98,7 +98,7 @@ public class SettingHelper {
       Set resolutionRatioSet = preferences.getStringSet(keys[4], defaultRR);
       int result = (resolutionRatioSet.contains("1920x1080") ? 1 : 0) +
               2 * (resolutionRatioSet.contains("1920x1200") ? 1 : 0);
-      LogHelper.logD(result);
+      LogHelper.d(result);
       return result;
    }
 
@@ -127,7 +127,7 @@ public class SettingHelper {
    }
 
    public static void setInterval(String intervalStr) {
-      LogHelper.logD(intervalStr);
+      LogHelper.d(intervalStr);
       initPreference();
       SharedPreferences.Editor editor = preferences.edit();
       editor.putString(keys[2], intervalStr);
@@ -149,7 +149,7 @@ public class SettingHelper {
 
       initPreference();
       boolean b = preferences.getBoolean(keys[1], false);
-      LogHelper.logD(null, keys[1] + "--" + b);
+      LogHelper.d(null, keys[1] + "--" + b);
       for (int i = 2; i < 5; i++) {
          settingsActivity.findPreference(keys[i]).setEnabled(b);
       }
