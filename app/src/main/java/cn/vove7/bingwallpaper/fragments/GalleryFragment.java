@@ -90,7 +90,7 @@ public class GalleryFragment extends Fragment {
       getPaths();
       if (adapter == null) {
          adapter = new GalleryRecyclerViewAdapter
-                 (this, imagePaths, getScreenWidth(this.getContext()), mColumnCount);
+                 (imagePaths, getScreenWidth(this.getContext()), mColumnCount);
          recyclerView.setAdapter(adapter);
          adapter.setListener(listener);
       }
@@ -99,6 +99,7 @@ public class GalleryFragment extends Fragment {
 
       //moveToPosition(pos);
       adapter.notifyDataSetChanged();
+      manager.scrollToPositionWithOffset(pos*adapter.itemHeight,0);
       //recyclerView.scrollToPosition(adapter.getItemCount()-1);
 
    }

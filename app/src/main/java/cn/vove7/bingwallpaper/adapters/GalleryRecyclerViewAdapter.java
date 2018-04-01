@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.ArrayList;
 
 import cn.vove7.bingwallpaper.R;
-import cn.vove7.bingwallpaper.fragments.GalleryFragment;
 
 import static cn.vove7.bingwallpaper.services.DownloadService.IMAGE_DIRECTORY;
 
@@ -22,15 +21,14 @@ public class GalleryRecyclerViewAdapter extends RecyclerView.Adapter<GalleryRecy
    private final ArrayList<String> imagePaths;
    private final int img_width;
    private final int img_height;
-   private GalleryFragment fragment;
    OnItemClickListener listener;//图片点击事件
+   public int itemHeight;
 
    public void setListener(OnItemClickListener listener) {
       this.listener = listener;
    }
 
-   public GalleryRecyclerViewAdapter(GalleryFragment fragment, ArrayList<String> items, int screenWidth, int column_count) {
-      this.fragment = fragment;
+   public GalleryRecyclerViewAdapter(ArrayList<String> items, int screenWidth, int column_count) {
       img_width = screenWidth / column_count;
       img_height = 1080 * img_width / 1920;
       imagePaths = items;
@@ -40,6 +38,7 @@ public class GalleryRecyclerViewAdapter extends RecyclerView.Adapter<GalleryRecy
    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View view = LayoutInflater.from(parent.getContext())
               .inflate(R.layout.fragment_gallery, parent, false);
+      itemHeight = view.getHeight();
       return new ViewHolder(view);
    }
 

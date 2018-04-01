@@ -105,7 +105,7 @@
     <string name="auto_update">自动更新</string>
     <string name="summary_auto_update">每天00:00更新设置壁纸(可能有延迟)</string>
     <string name="text_version">版本</string>
-    <string name="version_name">2.0.1</string>
+    <string name="version_name">2.0.2</string>
     <string name="about_hint">提示</string>
     <string name="description_set_interval">动态设置壁纸时间间隔</string>
     <string name="text_only_wifi">仅WIFI</string>

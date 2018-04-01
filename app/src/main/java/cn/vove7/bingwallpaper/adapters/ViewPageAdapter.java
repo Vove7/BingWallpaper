@@ -116,10 +116,10 @@ public class ViewPageAdapter extends PagerAdapter {
    @Override
    public int getItemPosition(@NonNull Object object) {
       View view = (View) object;
-      int currentPage = ((ViewImageActivity)context).getNextIndex(); // Get current page index
-      if(currentPage == (Integer)view.getTag()){
+      int currentPage = ((ViewImageActivity) context).getNextIndex(); // Get current page index
+      if (currentPage <= (Integer) view.getTag()) {
          return POSITION_NONE;
-      }else{
+      } else {
          return POSITION_UNCHANGED;
       }
    }
